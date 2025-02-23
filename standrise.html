@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StandRise - PLUGG BOT</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="server-page">
+    <main class="main-content">
+        <section class="server-container fade-in">
+            <img src="https://static6.tgstat.ru/channels/_0/d4/d4bac0bede68cfba7025e11ac859b0ce.jpg" alt="StandRise" class="avatar" loading="lazy">
+            <h1 class="name">StandRise</h1>
+            <div class="info">
+                <p><strong>Название:</strong> StandRise</p>
+                <p><strong>Версия:</strong> 0.16.0</p>
+                <p><strong>Описание:</strong> StandRise – приватный сервер Standoff 2 с уникальными преимуществами и удобствами для игроков.</p>
+            </div>
+            <div class="button-container">
+                <a href="privates.html" class="button back-button">Назад</a>
+                <button class="button download-button" id="downloadButton">Скачать</button>
+            </div>
+            <div class="download-progress" id="downloadProgress" style="display: none;">
+                <p id="progressText">Скачано: 0 MB из 0 MB</p>
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="dev-banner" id="devBanner" style="display: none;">
+        <div class="banner-content">
+            <p>Просим прощения, эта функция находится в разработке!</p>
+            <span class="banner-ok">OK</span>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html#home" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Главная</span>
+        </a>
+        <a href="privates.html" class="nav-item active">
+            <span class="nav-icon">⬇️</span>
+            <span class="nav-text">Приватки</span>
+        </a>
+        <a href="#" class="nav-item" id="menuButton">
+            <span class="nav-icon">🍔</span>
+            <span class="nav-text">Меню</span>
+        </a>
+    </nav>
+
+    <script src="script.js"></script>
+</body>
+</html>
