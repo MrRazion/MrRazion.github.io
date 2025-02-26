@@ -46,19 +46,24 @@ document.addEventListener('DOMContentLoaded', () => {
             hours < 22 ? greetings.evening : greetings.night;
     }
 
-    // Download Button with Full File Loading
+    // Download Button with Mobile Support
     if (downloadButton && downloadProgress && progressBarDownload && progressText) {
         downloadButton.addEventListener('click', async () => {
-            const fileUrl = 'files/standrise0.30.0.msi';
-            const fileName = 'standrise0.30.0.msi';
+            const fileUrl = 'files/standrise0.30.0.msi'; // Обновлен путь для .apk
+            const fileName = 'standrise0.30.0.apk';
             downloadProgress.style.display = 'block';
             downloadButton.disabled = true;
 
             try {
-                const response = await fetch(fileUrl);
+                const response = await fetch(fileUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/octet-stream' // Указываем тип для мобильных
+                    }
+                });
                 if (!response.ok) throw new Error('Не удалось загрузить файл');
 
-                const totalBytes = parseInt(response.headers.get('content-length'), 10);
+                const totalBytes = parseInt(response.headers.get('content-length') || '0', 10);
                 const totalMB = (totalBytes / 1024 / 1024).toFixed(2);
                 let downloadedBytes = 0;
 
@@ -73,16 +78,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     downloadedBytes += value.length;
 
                     const downloadedMB = (downloadedBytes / 1024 / 1024).toFixed(2);
-                    const progressPercent = ((downloadedBytes / totalBytes) * 100).toFixed(1);
+                    const progressPercent = totalBytes ? ((downloadedBytes / totalBytes) * 100).toFixed(1) : 0;
                     progressBarDownload.style.width = `${progressPercent}%`;
                     progressText.textContent = `Скачано: ${downloadedMB} MB из ${totalMB} MB (${progressPercent}%)`;
                 }
 
-                const blob = new Blob(chunks);
+                const blob = new Blob(chunks, { type: 'application/vnd.android.package-archive' }); // Тип для .apk
                 const downloadUrl = URL.createObjectURL(blob);
+                
+                // Создаем ссылку для скачивания
                 const link = document.createElement('a');
                 link.href = downloadUrl;
                 link.download = fileName;
+                link.style.display = 'none'; // Скрываем ссылку
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -92,8 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 downloadButton.disabled = false;
             } catch (error) {
                 console.error('Ошибка загрузки:', error);
-                progressText.textContent = 'Ошибка загрузки файла';
-                downloadButton.disabled = false;
+                progressText.textContent = 'Ошибка загрузки файла. Проверьте подключение.';
+                setTimeout(() => {
+                    downloadProgress.style.display = 'none';
+                    downloadButton.disabled = false;
+                }, 2000);
             }
         });
     }
@@ -115,6 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Animate Icons
     const icons = document.querySelectorAll('.icon');
     icons.forEach((icon, index) => {
-        setTimeout(() => icon.classList.add('visible'), index * 100); // Ускорена анимация
+        setTimeout(() => icon.classList.add('visible'), index * 100);
     });
 });
