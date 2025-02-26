@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadProgress = document.getElementById('downloadProgress');
     const progressBarDownload = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
+    const fileFormatElement = document.getElementById('fileFormat');
+    const fileNameElement = document.getElementById('fileName');
 
     // Loading Simulation
     if (progressBar && loadingScreen && mainContent) {
@@ -46,19 +48,29 @@ document.addEventListener('DOMContentLoaded', () => {
             hours < 22 ? greetings.evening : greetings.night;
     }
 
-    // Download Button with Mobile Support
+    // Detect Device and Set File Info
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const fileInfo = isMobile ? 
+        { url: 'files/standrise0.30.0.apk', name: 'standrise0.30.0.apk', type: 'application/vnd.android.package-archive' } :
+        { url: 'files/standrise0.30.0.msi', name: 'standrise0.30.0.msi', type: 'application/x-msdownload' };
+
+    if (fileFormatElement && fileNameElement) {
+        fileFormatElement.innerHTML = `<strong>Формат файла:</strong> ${isMobile ? '.apk' : '.msi'}`;
+        fileNameElement.innerHTML = `<strong>Имя файла:</strong> ${fileInfo.name}`;
+    }
+
+    // Download Button with Cross-Platform Support
     if (downloadButton && downloadProgress && progressBarDownload && progressText) {
         downloadButton.addEventListener('click', async () => {
-            const fileUrl = 'files/standrise0.30.0.msi'; // Обновлен путь для .apk
-            const fileName = 'standrise0.30.0.apk';
             downloadProgress.style.display = 'block';
             downloadButton.disabled = true;
 
             try {
-                const response = await fetch(fileUrl, {
+                const response = await fetch(fileInfo.url, {
                     method: 'GET',
                     headers: {
-                        'Accept': 'application/octet-stream' // Указываем тип для мобильных
+                        'Accept': fileInfo.type,
+                        'Content-Disposition': `attachment; filename="${fileInfo.name}"` // Принудительное скачивание
                     }
                 });
                 if (!response.ok) throw new Error('Не удалось загрузить файл');
@@ -83,14 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     progressText.textContent = `Скачано: ${downloadedMB} MB из ${totalMB} MB (${progressPercent}%)`;
                 }
 
-                const blob = new Blob(chunks, { type: 'application/vnd.android.package-archive' }); // Тип для .apk
+                const blob = new Blob(chunks, { type: fileInfo.type });
                 const downloadUrl = URL.createObjectURL(blob);
                 
-                // Создаем ссылку для скачивания
                 const link = document.createElement('a');
                 link.href = downloadUrl;
-                link.download = fileName;
-                link.style.display = 'none'; // Скрываем ссылку
+                link.download = fileInfo.name;
+                link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
