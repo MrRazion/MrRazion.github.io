@@ -47,58 +47,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Download Button with Full File Loading
-    if (downloadButton && downloadProgress && progressBarDownload && progressText) {
-        downloadButton.addEventListener('click', async () => {
-            const fileUrl = 'files/standrise0.30.0.msi'; // Укажи правильный путь к файлу
+if (downloadButton && downloadProgress && progressBarDownload && progressText) {
+    downloadButton.addEventListener('click', async () => {
+        const fileUrl = 'files/standrise0.30.0.msi'; // Путь к файлу в папке files
+        const fileName = 'standrise0.30.0.msi'; // Имя файла
+        const fileFormat = '.msi'; // Формат файла
 
-            // Показываем прогресс-бар
-            downloadProgress.style.display = 'block';
-            downloadButton.disabled = true;
+        // Показываем прогресс-бар
+        downloadProgress.style.display = 'block';
+        downloadButton.disabled = true;
 
-            try {
-                const response = await fetch(fileUrl);
-                if (!response.ok) throw new Error('Не удалось загрузить файл');
+        try {
+            const response = await fetch(fileUrl);
+            if (!response.ok) throw new Error('Не удалось загрузить файл');
 
-                const totalBytes = parseInt(response.headers.get('content-length'), 10);
-                const totalMB = (totalBytes / 1024 / 1024).toFixed(2); // Переводим в MB
-                let downloadedBytes = 0;
+            const totalBytes = parseInt(response.headers.get('content-length'), 10);
+            const totalMB = (totalBytes / 1024 / 1024).toFixed(2); // Размер файла в MB
+            let downloadedBytes = 0;
 
-                const reader = response.body.getReader();
-                const chunks = [];
+            const reader = response.body.getReader();
+            const chunks = [];
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-                    chunks.push(value);
-                    downloadedBytes += value.length;
+                chunks.push(value);
+                downloadedBytes += value.length;
 
-                    const downloadedMB = (downloadedBytes / 1024 / 1024).toFixed(2);
-                    const progressPercent = (downloadedBytes / totalBytes) * 100;
-                    progressBarDownload.style.width = `${progressPercent}%`;
-                    progressText.textContent = `Скачано: ${downloadedMB} MB из ${totalMB} MB`;
-                }
-
-                // После полной загрузки создаем Blob и предлагаем скачать
-                const blob = new Blob(chunks);
-                const downloadUrl = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = 'standrise0.30.0.msi';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(downloadUrl); // Очищаем память
-
-                // Скрываем прогресс-бар после завершения
-                downloadButton.disabled = false;
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                progressText.textContent = 'Ошибка загрузки файла';
-                downloadButton.disabled = false;
+                const downloadedMB = (downloadedBytes / 1024 / 1024).toFixed(2);
+                const progressPercent = ((downloadedBytes / totalBytes) * 100).toFixed(1);
+                progressBarDownload.style.width = `${progressPercent}%`;
+                progressText.textContent = `Скачано: ${downloadedMB} MB из ${totalMB} MB (${progressPercent}%)`;
             }
-        });
-    }
+
+            // После полной загрузки создаем Blob и предлагаем скачать
+            const blob = new Blob(chunks);
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = fileName; // Устанавливаем имя файла для скачивания
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(downloadUrl); // Очищаем память
+
+            // Скрываем прогресс-бар после завершения
+            downloadProgress.style.display = 'none';
+            downloadButton.disabled = false;
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            progressText.textContent = 'Ошибка загрузки файла';
+            downloadButton.disabled = false;
+        }
+    });
+}
 
     // Menu Button
     if (menuButton && devBanner) {
