@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const downloadUrl = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = downloadUrl;
-                link.download = 'StandRise.apk';
+                link.download = 'standrise0.30.0.msi';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
