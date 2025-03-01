@@ -6,15 +6,22 @@
     <title>PLUGG BOT</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <main class="main-content">
+    <div class="loading-screen">
+        <div class="loader">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content" id="main-content" style="display: none;">
         <section class="hero">
             <div class="purple-square">
-                <h1 class="fade-in" id="greeting">Доброе утро</h1>
-                <p class="description">PLUGG BOT - Единственный бот, где вы можете скачать приватный сервер без рекламы, скама и обмана.</p>
-                <p class="download-text">Нажмите ниже, чтобы выбрать сервер:</p>
+                <h1 class="fade-in" id="greeting">Доброе утро, Пользователь</h1>
+                <p class="description">PLUGG BOT - Скачай приватный сервер Standoff 2 без рекламы и обмана.</p>
+                <p class="download-text">Выбери сервер ниже:</p>
                 <a href="privates.html" class="download-button">ПРИВАТКИ</a>
             </div>
         </section>
@@ -23,17 +30,17 @@
             <h2>Разработчики</h2>
             <div class="developer-container">
                 <article class="developer fade-in">
-                    <img src="https://i.pinimg.com/736x/72/9c/bd/729cbd03c9df4cb6e7c103a4a84f6fb3.jpg" alt="Аватар Плагги" loading="lazy">
+                    <img src="https://i.pinimg.com/736x/72/9c/bd/729cbd03c9df4cb6e7c103a4a84f6fb3.jpg" alt="Плагги" loading="lazy">
                     <a href="https://github.com/elbereth/DragonUnPACKer/releases/tag/release-56240-exedrachac" target="_blank">Плагги <span class="verified">✔</span></a>
-                    <p>Разработчик, кодер, дизайнер</p>
+                    <p>Разработчик, дизайнер</p>
                 </article>
                 <article class="developer fade-in">
-                    <img src="https://i.pinimg.com/736x/a8/cd/a0/a8cda0252de61ceb96916e27fcd7eb8d.jpg" alt="Аватар s4ote" loading="lazy">
+                    <img src="https://i.pinimg.com/736x/a8/cd/a0/a8cda0252de61ceb96916e27fcd7eb8d.jpg" alt="s4ote" loading="lazy">
                     <a href="https://otvet.mail.ru/question/663664821" target="_blank">s4ote <span class="verified">✔</span></a>
-                    <p>Тестер, помощник</p>
+                    <p>Тестер</p>
                 </article>
                 <article class="developer fade-in">
-                    <img src="https://i.pinimg.com/736x/cf/20/95/cf2095715a92d806cea2289f2d124f28.jpg" alt="Аватар Eclipse" loading="lazy">
+                    <img src="https://i.pinimg.com/736x/cf/20/95/cf2095715a92d806cea2289f2d124f28.jpg" alt="Eclipse" loading="lazy">
                     <a href="https://otvet.mail.ru/question/232345253" target="_blank">Eclipse <span class="verified">✔</span></a>
                     <p>Тестер, кодер</p>
                 </article>
@@ -55,6 +62,17 @@
             </div>
         </section>
     </main>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Главная</span>
+        </a>
+        <a href="privates.html" class="nav-item">
+            <span class="nav-icon">⬇️</span>
+            <span class="nav-text">Приватки</span>
+        </a>
+    </nav>
 
     <script src="script.js"></script>
 </body>

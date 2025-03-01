@@ -6,7 +6,6 @@
     <title>StandRise - PLUGG BOT</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
     <main class="main-content">
@@ -18,13 +17,31 @@
                 <p><strong>Версия:</strong> 0.16.0</p>
                 <p><strong>Описание:</strong> StandRise – приватный сервер Standoff 2 с уникальными преимуществами.</p>
                 <p id="fileFormat"><strong>Формат файла:</strong> .apk</p>
-                <p id="fileName"><strong>Имя файла:</strong> standrise_from_telegram.apk</p>
+                <p id="fileName"><strong>Имя файла:</strong> standrise0.30.0.apk</p>
             </div>
             <div class="button-container">
+                <a href="privates.html" class="button back-button">Назад</a>
                 <button class="button download-button" id="downloadButton">Скачать</button>
+            </div>
+            <div class="download-progress" id="downloadProgress" style="display: none;">
+                <p id="progressText">Скачано: 0 MB из 0 MB (0%)</p>
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
             </div>
         </section>
     </main>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Главная</span>
+        </a>
+        <a href="privates.html" class="nav-item active">
+            <span class="nav-icon">⬇️</span>
+            <span class="nav-text">Приватки</span>
+        </a>
+    </nav>
 
     <script src="script.js"></script>
 </body>

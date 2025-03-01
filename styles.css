@@ -9,6 +9,7 @@ body, html {
     width: 100%;
     height: 100%;
     color: #fff;
+    overflow-x: hidden;
     background: linear-gradient(45deg, #2c003e, #4b0082, #8a2be2);
     background-size: 600% 600%;
     animation: gradientAnimation 8s ease infinite;
@@ -20,8 +21,43 @@ body, html {
     100% { background-position: 0% 0%; }
 }
 
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #2c003e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.5s ease-out;
+}
+
+.loader {
+    width: 90%;
+    max-width: 300px;
+}
+
+.progress-bar {
+    background: #fff;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+}
+
+.progress {
+    width: 0;
+    height: 8px;
+    background: #8a2be2;
+    transition: width 0.4s ease;
+}
+
+/* Main Content */
 .main-content {
-    padding: 20px;
+    padding: 15px 15px 60px;
     min-height: 100vh;
 }
 
@@ -33,15 +69,15 @@ body, html {
 .purple-square {
     background: rgba(138, 43, 226, 0.9);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 10px;
     text-align: center;
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
 h1, h2 {
     color: #fff;
     margin-bottom: 15px;
-    font-size: 1.8em;
+    font-size: 1.5em;
 }
 
 .fade-in {
@@ -74,19 +110,19 @@ h1, h2 {
 .button:hover, .download-button:hover {
     background: #8a2be2;
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(138, 43, 226, 0.5);
+    box-shadow: 0 4px 12px rgba(138, 43, 226, 0.5);
 }
 
 /* Developers */
 .developers {
     background: rgba(44, 0, 62, 0.8);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .developer-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 15px;
     justify-items: center;
 }
@@ -99,7 +135,7 @@ h1, h2 {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+    box-shadow: 0 0 8px rgba(138, 43, 226, 0.5);
 }
 
 .developer a {
@@ -123,7 +159,7 @@ h1, h2 {
 .social-media {
     background: rgba(44, 0, 62, 0.8);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .social-icons {
@@ -140,7 +176,7 @@ h1, h2 {
 }
 
 .social-icon:hover img {
-    transform: scale(1.2);
+    transform: scale(1.1);
 }
 
 /* Privates Page */
@@ -152,8 +188,8 @@ h1, h2 {
 .icon-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .icon {
@@ -164,14 +200,14 @@ h1, h2 {
 
 .icon img {
     width: 100%;
-    max-width: 100px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    max-width: 90px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     transition: transform 0.3s ease;
 }
 
 .icon:hover img {
-    transform: scale(1.08);
+    transform: scale(1.05);
 }
 
 .icon.placeholder {
@@ -182,17 +218,18 @@ h1, h2 {
 .server-container {
     background: rgba(44, 0, 62, 0.9);
     padding: 20px;
-    border-radius: 12px;
+    border-radius: 10px;
     text-align: center;
-    max-width: 90%;
-    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.4);
+    max-width: 95%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    margin: 15px auto;
 }
 
 .avatar {
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+    box-shadow: 0 0 12px rgba(138, 43, 226, 0.5);
     margin-bottom: 15px;
 }
 
@@ -206,7 +243,7 @@ h1, h2 {
     text-align: left;
     padding: 15px;
     background: rgba(138, 43, 226, 0.9);
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .info p {
@@ -215,5 +252,66 @@ h1, h2 {
 }
 
 .button-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
     margin-top: 15px;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(44, 0, 62, 0.9);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    font-size: 0.8em;
+    transition: color 0.3s ease;
+}
+
+.nav-item.active {
+    color: #8a2be2;
+}
+
+.nav-icon {
+    font-size: 1.4em;
+    margin-bottom: 4px;
+}
+
+.nav-text {
+    font-size: 0.7em;
+}
+
+.nav-item:hover {
+    color: #8a2be2;
+}
+
+/* Download Progress */
+.download-progress {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#progressText {
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
 }
