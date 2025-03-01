@@ -6,9 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadButton = document.getElementById('downloadButton');
     const menuButton = document.getElementById('menuButton');
     const devBanner = document.getElementById('devBanner');
-    const downloadProgress = document.getElementById('downloadProgress');
-    const progressBarDownload = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
     const fileFormatElement = document.getElementById('fileFormat');
     const fileNameElement = document.getElementById('fileName');
 
@@ -59,66 +56,33 @@ document.addEventListener('DOMContentLoaded', () => {
         fileNameElement.innerHTML = `<strong>Имя файла:</strong> ${fileInfo.name}`;
     }
 
-    // Download Button with Cross-Platform Support
-    if (downloadButton && downloadProgress && progressBarDownload && progressText) {
-        downloadButton.addEventListener('click', async () => {
-            downloadProgress.style.display = 'block';
-            downloadButton.disabled = true;
-
-            try {
-                const response = await fetch(fileInfo.url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': fileInfo.type,
-                        'Content-Disposition': `attachment; filename="${fileInfo.name}"` // Принудительное скачивание
-                    }
-                });
-                if (!response.ok) throw new Error('Не удалось загрузить файл');
-
-                const totalBytes = parseInt(response.headers.get('content-length') || '0', 10);
-                const totalMB = (totalBytes / 1024 / 1024).toFixed(2);
-                let downloadedBytes = 0;
-
-                const reader = response.body.getReader();
-                const chunks = [];
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    chunks.push(value);
-                    downloadedBytes += value.length;
-
-                    const downloadedMB = (downloadedBytes / 1024 / 1024).toFixed(2);
-                    const progressPercent = totalBytes ? ((downloadedBytes / totalBytes) * 100).toFixed(1) : 0;
-                    progressBarDownload.style.width = `${progressPercent}%`;
-                    progressText.textContent = `Скачано: ${downloadedMB} MB из ${totalMB} MB (${progressPercent}%)`;
-                }
-
-                const blob = new Blob(chunks, { type: fileInfo.type });
-                const downloadUrl = URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = fileInfo.name;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(downloadUrl);
-
-                downloadProgress.style.display = 'none';
-                downloadButton.disabled = false;
-            } catch (error) {
-                console.error('Ошибка загрузки:', error);
-                progressText.textContent = 'Ошибка загрузки файла. Проверьте подключение.';
-                setTimeout(() => {
-                    downloadProgress.style.display = 'none';
-                    downloadButton.disabled = false;
-                }, 2000);
-            }
+    // Download Button - Simple Download
+    if (downloadButton) {
+        downloadButton.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.href = fileInfo.url;
+            link.download = fileInfo.name;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
     }
+
+    // Menu Button
+    if (menuButton && devBanner) {
+        menuButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            devBanner.style.display = 'flex';
+            setTimeout(() => devBanner.classList.add('active'), 10);
+        });
+
+        devBanner.querySelector('.banner-ok').addEventListener('click', () => {
+            devBanner.classList.remove('active');
+            setTimeout(() => devBanner.style.display = 'none', 300);
+        });
+    }
+});
 
     // Menu Button
     if (menuButton && devBanner) {
@@ -139,4 +103,3 @@ document.addEventListener('DOMContentLoaded', () => {
     icons.forEach((icon, index) => {
         setTimeout(() => icon.classList.add('visible'), index * 100);
     });
-});
