@@ -4,11 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
     const greetingElement = document.getElementById('greeting');
     const downloadButton = document.getElementById('downloadButton');
+    const menuButton = document.getElementById('menuButton');
+    const devBanner = document.getElementById('devBanner');
     const downloadProgress = document.getElementById('downloadProgress');
     const progressBarDownload = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
-    const fileFormatElement = document.getElementById('fileFormat');
-    const fileNameElement = document.getElementById('fileName');
 
     // Loading Simulation
     if (progressBar && loadingScreen && mainContent) {
@@ -46,100 +46,81 @@ document.addEventListener('DOMContentLoaded', () => {
             hours < 22 ? greetings.evening : greetings.night;
     }
 
-    // File Info (GitHub raw URL)
-    const fileInfo = {
-        url: 'https://raw.githubusercontent.com/MrRazion/MrRazion.github.io/main/files/standrise0.30.0.apk', // Прямая ссылка на файл
-        name: 'standrise0.30.0.apk',
-        type: 'application/vnd.android.package-archive'
-    };
-
-    if (fileFormatElement && fileNameElement) {
-        fileFormatElement.innerHTML = `<strong>Формат файла:</strong> .apk`;
-        fileNameElement.innerHTML = `<strong>Имя файла:</strong> ${fileInfo.name}`;
-    }
-
-    // Download Button - Прямое скачивание через GitHub raw URL
+    // Download Button with Full File Loading from GitHub
     if (downloadButton && downloadProgress && progressBarDownload && progressText) {
         downloadButton.addEventListener('click', async () => {
+            const fileUrl = 'https://raw.githubusercontent.com/MrRazion/MrRazion.github.io/main/files/standrise0.30.0.apk'; // GitHub raw URL
+
+            // Показываем прогресс-бар
             downloadProgress.style.display = 'block';
             downloadButton.disabled = true;
 
             try {
-                // Метод 1: Прямое скачивание через <a>
+                const response = await fetch(fileUrl);
+                if (!response.ok) throw new Error('Не удалось загрузить файл с GitHub');
+
+                const totalBytes = parseInt(response.headers.get('content-length') || '0', 10);
+                const totalMB = (totalBytes / 1024 / 1024).toFixed(2); // Переводим в MB
+                let downloadedBytes = 0;
+
+                const reader = response.body.getReader();
+                const chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    chunks.push(value);
+                    downloadedBytes += value.length;
+
+                    const downloadedMB = (downloadedBytes / 1024 / 1024).toFixed(2);
+                    const progressPercent = totalBytes ? (downloadedBytes / totalBytes) * 100 : 0;
+                    progressBarDownload.style.width = `${progressPercent}%`;
+                    progressText.textContent = `Скачано: ${downloadedMB} MB из ${totalMB} MB (${progressPercent.toFixed(1)}%)`;
+                }
+
+                // После полной загрузки создаем Blob и запускаем скачивание
+                const blob = new Blob(chunks, { type: 'application/vnd.android.package-archive' });
+                const downloadUrl = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.href = fileInfo.url;
-                link.download = fileInfo.name;
-                link.style.display = 'none';
+                link.href = downloadUrl;
+                link.download = 'standrise0.30.0.apk'; // Имя файла для сохранения
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                URL.revokeObjectURL(downloadUrl);
 
-                // Успешное скачивание
+                // Скрываем прогресс-бар после завершения
+                downloadProgress.style.display = 'none';
+                downloadButton.disabled = false;
+            } catch (error) {
+                console.error('Ошибка загрузки:', error);
+                progressText.textContent = 'Ошибка загрузки файла. Проверьте ссылку.';
                 setTimeout(() => {
                     downloadProgress.style.display = 'none';
                     downloadButton.disabled = false;
-                }, 1000);
-            } catch (error) {
-                console.error('Прямое скачивание не сработало:', error);
-                progressText.textContent = 'Пробуем другой способ...';
-
-                // Метод 2: Скачивание через fetch и Blob
-                try {
-                    const response = await fetch(fileInfo.url, {
-                        method: 'GET',
-                        headers: { 'Accept': fileInfo.type }
-                    });
-                    if (!response.ok) throw new Error('Файл не найден на GitHub');
-
-                    const totalBytes = parseInt(response.headers.get('content-length') || '0', 10);
-                    const totalMB = (totalBytes / 1024 / 1024).toFixed(2);
-                    let downloadedBytes = 0;
-
-                    const reader = response.body.getReader();
-                    const chunks = [];
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) break;
-
-                        chunks.push(value);
-                        downloadedBytes += value.length;
-
-                        const downloadedMB = (downloadedBytes / 1024 / 1024).toFixed(2);
-                        const progressPercent = totalBytes ? ((downloadedBytes / totalBytes) * 100).toFixed(1) : 0;
-                        progressBarDownload.style.width = `${progressPercent}%`;
-                        progressText.textContent = `Скачано: ${downloadedMB} MB из ${totalMB} MB (${progressPercent}%)`;
-                    }
-
-                    const blob = new Blob(chunks, { type: fileInfo.type });
-                    const downloadUrl = URL.createObjectURL(blob);
-
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
-                    link.download = fileInfo.name;
-                    link.style.display = 'none';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(downloadUrl);
-
-                    downloadProgress.style.display = 'none';
-                    downloadButton.disabled = false;
-                } catch (error) {
-                    console.error('Ошибка загрузки:', error);
-                    progressText.textContent = 'Не удалось скачать файл. Проверьте URL.';
-                    setTimeout(() => {
-                        downloadProgress.style.display = 'none';
-                        downloadButton.disabled = false;
-                    }, 2000);
-                }
+                }, 2000);
             }
+        });
+    }
+
+    // Menu Button
+    if (menuButton && devBanner) {
+        menuButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            devBanner.style.display = 'flex';
+            setTimeout(() => devBanner.classList.add('active'), 10);
+        });
+
+        devBanner.querySelector('.banner-ok').addEventListener('click', () => {
+            devBanner.classList.remove('active');
+            setTimeout(() => devBanner.style.display = 'none', 300);
         });
     }
 
     // Animate Icons
     const icons = document.querySelectorAll('.icon');
     icons.forEach((icon, index) => {
-        setTimeout(() => icon.classList.add('visible'), index * 100);
+        setTimeout(() => icon.classList.add('visible'), index * 200);
     });
 });
