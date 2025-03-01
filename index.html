@@ -17,37 +17,40 @@
     </div>
 
     <main class="main-content" id="main-content" style="display: none;">
-        <section class="hero">
+        <section id="home" class="hero">
             <div class="purple-square">
                 <h1 class="fade-in" id="greeting">Доброе утро, Пользователь</h1>
-                <p class="description">PLUGG BOT - Скачай приватный сервер Standoff 2 без рекламы и обмана.</p>
-                <p class="download-text">Выбери сервер ниже:</p>
+                <p class="description">PLUGG BOT - Единственный бот, где вы можете скачать приватный сервер без рекламы, скама и обмана.</p>
+                <p class="download-text">Нажмите ниже, чтобы скачать приватный сервер:</p>
                 <a href="privates.html" class="download-button">ПРИВАТКИ</a>
             </div>
+            <div class="banner">
+                <img src="https://via.placeholder.com/653xauto?text=Banner" alt="Баннер" loading="lazy">
+            </div>
         </section>
 
-        <section class="developers">
+        <section id="developers" class="developers">
             <h2>Разработчики</h2>
             <div class="developer-container">
-                <article class="developer fade-in">
-                    <img src="https://i.pinimg.com/736x/72/9c/bd/729cbd03c9df4cb6e7c103a4a84f6fb3.jpg" alt="Плагги" loading="lazy">
+                <article class="developer developer-left fade-in">
+                    <img src="https://i.pinimg.com/736x/72/9c/bd/729cbd03c9df4cb6e7c103a4a84f6fb3.jpg" alt="Аватар Плагги" loading="lazy">
                     <a href="https://github.com/elbereth/DragonUnPACKer/releases/tag/release-56240-exedrachac" target="_blank">Плагги <span class="verified">✔</span></a>
-                    <p>Разработчик, дизайнер</p>
+                    <p>Разработчик, кодер, дизайнер и богиня проекта</p>
                 </article>
-                <article class="developer fade-in">
-                    <img src="https://i.pinimg.com/736x/a8/cd/a0/a8cda0252de61ceb96916e27fcd7eb8d.jpg" alt="s4ote" loading="lazy">
+                <article class="developer developer-center fade-in">
+                    <img src="https://i.pinimg.com/736x/a8/cd/a0/a8cda0252de61ceb96916e27fcd7eb8d.jpg" alt="Аватар s4ote" loading="lazy">
                     <a href="https://otvet.mail.ru/question/663664821" target="_blank">s4ote <span class="verified">✔</span></a>
-                    <p>Тестер</p>
+                    <p>Тестер, помощник</p>
                 </article>
-                <article class="developer fade-in">
-                    <img src="https://i.pinimg.com/736x/cf/20/95/cf2095715a92d806cea2289f2d124f28.jpg" alt="Eclipse" loading="lazy">
+                <article class="developer developer-right fade-in">
+                    <img src="https://i.pinimg.com/736x/cf/20/95/cf2095715a92d806cea2289f2d124f28.jpg" alt="Аватар Eclipse" loading="lazy">
                     <a href="https://otvet.mail.ru/question/232345253" target="_blank">Eclipse <span class="verified">✔</span></a>
-                    <p>Тестер, кодер</p>
+                    <p>Тестер, кодер, весельчак</p>
                 </article>
             </div>
         </section>
 
-        <section class="social-media">
+        <section id="social" class="social-media">
             <h2>Наши соцсети</h2>
             <div class="social-icons">
                 <a href="https://youtube.com/@plxgg" target="_blank" class="social-icon youtube" aria-label="YouTube">
@@ -63,14 +66,25 @@
         </section>
     </main>
 
+    <div class="dev-banner" id="devBanner" style="display: none;">
+        <div class="banner-content">
+            <p>Просим прощения, эта функция находится в разработке!</p>
+            <span class="banner-ok">OK</span>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
-        <a href="#" class="nav-item active">
+        <a href="#home" class="nav-item active">
             <span class="nav-icon">🏠</span>
             <span class="nav-text">Главная</span>
         </a>
         <a href="privates.html" class="nav-item">
             <span class="nav-icon">⬇️</span>
             <span class="nav-text">Приватки</span>
+        </a>
+        <a href="#" class="nav-item" id="menuButton">
+            <span class="nav-icon">🍔</span>
+            <span class="nav-text">Меню</span>
         </a>
     </nav>
 
