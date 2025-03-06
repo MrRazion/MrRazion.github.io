@@ -57,14 +57,24 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Статические данные для примера
-        const reports = [
-            { id: 1, first_name: "User1", username: "user1", message: "Как работает промокод?", timestamp: "06.03.2025 | 12:00" },
-            { id: 2, first_name: "User2", username: "user2", message: "Где мой ключ после оплаты?", timestamp: "06.03.2025 | 12:05" }
-        ];
+        async function fetchReports() {
+            try {
+                const response = await fetch('https://1234.ngrok.io/api/questions'); // Замените на ваш ngrok URL
+                const reports = await response.json();
+                renderReports(reports);
+            } catch (error) {
+                console.error('Error fetching questions:', error);
+                const chat = document.getElementById('chat');
+                chat.innerHTML = '<div class="message">Ошибка загрузки вопросов</div>';
+            }
+        }
 
-        function renderReports() {
+        function renderReports(reports) {
             const chat = document.getElementById('chat');
+            if (reports.length === 0) {
+                chat.innerHTML = '<div class="message">Пока нет вопросов</div>';
+                return;
+            }
             reports.forEach(report => {
                 const message = document.createElement('div');
                 message.className = 'message';
@@ -84,7 +94,7 @@
 
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
-        renderReports();
+        fetchReports();
     </script>
 </body>
 </html>
