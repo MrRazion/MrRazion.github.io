@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions</title>
+    <style>
+        body {
+            background-color: #2a2a2a;
+            margin: 0;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            background-color: #3a3a3a;
+            border-radius: 10px;
+            padding: 10px;
+            position: relative;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: #4a4a4a; /* Заглушка */
+        }
+        .username {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .text {
+            font-size: 13px;
+            color: #d0d0d0;
+        }
+        .timestamp {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 11px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container" id="chat"></div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Статические данные для примера
+        const reports = [
+            { id: 1, first_name: "User1", username: "user1", message: "Как работает промокод?", timestamp: "06.03.2025 | 12:00" },
+            { id: 2, first_name: "User2", username: "user2", message: "Где мой ключ после оплаты?", timestamp: "06.03.2025 | 12:05" }
+        ];
+
+        function renderReports() {
+            const chat = document.getElementById('chat');
+            reports.forEach(report => {
+                const message = document.createElement('div');
+                message.className = 'message';
+                message.innerHTML = `
+                    <div class="user-info">
+                        <div class="avatar"></div>
+                        <div>
+                            <div class="username">${report.first_name} | @${report.username}</div>
+                        </div>
+                    </div>
+                    <div class="text">${report.message}</div>
+                    <div class="timestamp">${report.timestamp}</div>
+                `;
+                chat.appendChild(message);
+            });
+        }
+
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        renderReports();
+    </script>
+</body>
+</html>
