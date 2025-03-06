@@ -1,93 +1,162 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PLUGG BOT</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>FAQ</title>
+    <style>
+        body {
+            background-color: #2a2a2a;
+            margin: 0;
+            padding: 15px;
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        .faq-container {
+            max-width: 100%;
+        }
+
+        .faq-item {
+            background-color: #3a3a3a;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            padding: 15px;
+        }
+
+        .faq-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .toggle-btn {
+            width: 30px;
+            height: 30px;
+            background-color: #4a4a4a;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .arrow {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid #ffffff;
+            transition: transform 0.3s ease;
+        }
+
+        .arrow.up {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #d0d0d0;
+        }
+
+        .faq-answer.active {
+            max-height: 200px; /* Adjust based on content */
+            padding-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <div class="loading-screen">
-        <div class="loader">
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
+    <div class="faq-container">
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleAnswer(1)">
+                <p class="faq-question">Как пополнить баланс?</p>
+                <div class="toggle-btn">
+                    <div class="arrow"></div>
+                </div>
+            </div>
+            <div class="faq-answer" id="answer-1">
+                Выберите "Пополнить баланс" в профиле, укажите сумму и переведите деньги на указанные реквизиты. После отправьте скриншот платежа.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleAnswer(2)">
+                <p class="faq-question">Сколько ждать пополнения?</p>
+                <div class="toggle-btn">
+                    <div class="arrow"></div>
+                </div>
+            </div>
+            <div class="faq-answer" id="answer-2">
+                Обычно проверка занимает от 5 минут до 1 часа в рабочее время. В ночное время может быть до 12 часов.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleAnswer(3)">
+                <p class="faq-question">Что делать, если платеж не пришел?</p>
+                <div class="toggle-btn">
+                    <div class="arrow"></div>
+                </div>
+            </div>
+            <div class="faq-answer" id="answer-3">
+                Напишите в поддержку через кнопку "Поддержка" в главном меню, указав сумму и приложив скриншот платежа.
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleAnswer(4)">
+                <p class="faq-question">Можно ли вернуть деньги?</p>
+                <div class="toggle-btn">
+                    <div class="arrow"></div>
+                </div>
+            </div>
+            <div class="faq-answer" id="answer-4">
+                Возврат возможен только в случае ошибки с нашей стороны. Ознакомьтесь с политикой возврата в "Политике конфиденциальности".
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-header" onclick="toggleAnswer(5)">
+                <p class="faq-question">Как использовать промокод?</p>
+                <div class="toggle-btn">
+                    <div class="arrow"></div>
+                </div>
+            </div>
+            <div class="faq-answer" id="answer-5">
+                В профиле выберите "Активировать промокод", введите код и подтвердите. Баланс обновится автоматически.
             </div>
         </div>
     </div>
 
-    <main class="main-content" id="main-content" style="display: none;">
-        <section id="home" class="hero">
-            <div class="purple-square">
-                <h1 class="fade-in" id="greeting">Доброе утро, Пользователь</h1>
-                <p class="description">PLUGG BOT - Единственный бот, где вы можете скачать приватный сервер без рекламы, скама и обмана.</p>
-                <p class="download-text">Нажмите ниже, чтобы скачать приватный сервер:</p>
-                <a href="privates.html" class="download-button">ПРИВАТКИ</a>
-            </div>
-            <div class="banner">
-                <img src="https://via.placeholder.com/653xauto?text=Banner" alt="Баннер" loading="lazy">
-            </div>
-        </section>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        function toggleAnswer(id) {
+            const answer = document.getElementById(`answer-${id}`);
+            const arrow = answer.previousElementSibling.querySelector('.arrow');
+            
+            if (answer.classList.contains('active')) {
+                answer.classList.remove('active');
+                arrow.classList.remove('up');
+            } else {
+                answer.classList.add('active');
+                arrow.classList.add('up');
+            }
+        }
 
-        <section id="developers" class="developers">
-            <h2>Разработчики</h2>
-            <div class="developer-container">
-                <article class="developer developer-left fade-in">
-                    <img src="https://i.pinimg.com/736x/72/9c/bd/729cbd03c9df4cb6e7c103a4a84f6fb3.jpg" alt="Аватар Плагги" loading="lazy">
-                    <a href="https://github.com/elbereth/DragonUnPACKer/releases/tag/release-56240-exedrachac" target="_blank">Плагги <span class="verified">✔</span></a>
-                    <p>Разработчик, кодер, дизайнер и богиня проекта</p>
-                </article>
-                <article class="developer developer-center fade-in">
-                    <img src="https://i.pinimg.com/736x/a8/cd/a0/a8cda0252de61ceb96916e27fcd7eb8d.jpg" alt="Аватар s4ote" loading="lazy">
-                    <a href="https://otvet.mail.ru/question/663664821" target="_blank">s4ote <span class="verified">✔</span></a>
-                    <p>Тестер, помощник</p>
-                </article>
-                <article class="developer developer-right fade-in">
-                    <img src="https://i.pinimg.com/736x/cf/20/95/cf2095715a92d806cea2289f2d124f28.jpg" alt="Аватар Eclipse" loading="lazy">
-                    <a href="https://otvet.mail.ru/question/232345253" target="_blank">Eclipse <span class="verified">✔</span></a>
-                    <p>Тестер, кодер, весельчак</p>
-                </article>
-            </div>
-        </section>
-
-        <section id="social" class="social-media">
-            <h2>Наши соцсети</h2>
-            <div class="social-icons">
-                <a href="https://youtube.com/@plxgg" target="_blank" class="social-icon youtube" aria-label="YouTube">
-                    <img src="https://ildshi.krd.muzkult.ru/media/2022/11/17/1292557680/Youtube_Icon.png" alt="" loading="lazy">
-                </a>
-                <a href="https://t.me/PrivateServersSo2" target="_blank" class="social-icon telegram" aria-label="Telegram">
-                    <img src="https://stihi.ru/pics/2022/08/06/5126.jpg" alt="" loading="lazy">
-                </a>
-                <a href="https://discord.com" target="_blank" class="social-icon discord" aria-label="Discord">
-                    <img src="https://images-eds-ssl.xboxlive.com/image?url=4rt9.lXDC4H_93laV1_eHHFT949fUipzkiFOBH3fAiZZUCdYojwUyX2aTonS1aIwMrx6NUIsHfUHSLzjGJFxxsG72wAo9EWJR4yQWyJJaDb6rYcBtJvTvH3UoAS4JFNDaxGhmKNaMwgElLURlRFeVkLCjkfnXmWtINWZIrPGYq0-&format=source" alt="" loading="lazy">
-                </a>
-            </div>
-        </section>
-    </main>
-
-    <div class="dev-banner" id="devBanner" style="display: none;">
-        <div class="banner-content">
-            <p>Просим прощения, эта функция находится в разработке!</p>
-            <span class="banner-ok">OK</span>
-        </div>
-    </div>
-
-    <nav class="bottom-nav">
-        <a href="#home" class="nav-item active">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-text">Главная</span>
-        </a>
-        <a href="privates.html" class="nav-item">
-            <span class="nav-icon">⬇️</span>
-            <span class="nav-text">Приватки</span>
-        </a>
-        <a href="#" class="nav-item" id="menuButton">
-            <span class="nav-icon">🍔</span>
-            <span class="nav-text">Меню</span>
-        </a>
-    </nav>
-
-    <script src="script.js"></script>
+        // Инициализация Telegram Web App
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+    </script>
 </body>
 </html>
