@@ -3,72 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privates • Доступ</title>
+    <title>Privates Access</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg-dark: #0f0c1d;
+            --accent: #bb86fc;
+            --text: #e0e0e0;
+        }
         body {
             margin: 0;
-            padding: 0;
-            background: #121212;
-            color: #e0e0e0;
+            padding: 20px;
+            background: var(--bg-dark);
+            color: var(--text);
             font-family: 'Arial', sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             text-align: center;
         }
         .container {
-            background: #1e1e1e;
-            border-radius: 12px;
-            padding: 30px;
-            width: 90%;
             max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            width: 100%;
         }
         h1 {
-            color: #bb86fc;
-            margin-bottom: 10px;
-        }
-        p {
-            color: #a0a0a0;
-            margin-bottom: 25px;
+            color: var(--accent);
+            margin-bottom: 20px;
         }
         .btn {
-            background: #bb86fc;
+            background: var(--accent);
             color: #000;
             border: none;
-            padding: 12px 0;
-            width: 100%;
+            padding: 15px 30px;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            width: 100%;
+            margin-top: 30px;
+            transition: transform 0.2s, background 0.3s;
         }
         .btn:hover {
             background: #9a67ea;
             transform: translateY(-2px);
         }
-        .btn:active {
-            transform: translateY(0);
+        .loader {
+            display: none;
+            margin-top: 20px;
+            border: 4px solid rgba(187, 134, 252, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--accent);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Privates</h1>
-        <p>Ваш эксклюзивный контент готов к скачиванию</p>
-        <button class="btn" id="downloadBtn">⬇️ Скачать сейчас</button>
+        <h1>🔒 Privates Content</h1>
+        <p>Нажмите кнопку ниже, чтобы получить файл прямо в чат с ботом</p>
+        
+        <button class="btn" id="downloadBtn">⬇️ Скачать файл</button>
+        <div class="loader" id="loader"></div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();  // Раскрываем на весь экран
+        tg.expand();  // Открываем на весь экран
         
-        document.getElementById("downloadBtn").addEventListener("click", () => {
-            tg.sendData("download");  // Отправляем сигнал боту
-            tg.close();  // Закрываем Web App (необязательно)
+        document.getElementById("downloadBtn").addEventListener("click", async () => {
+            const btn = document.getElementById("downloadBtn");
+            const loader = document.getElementById("loader");
+            
+            btn.disabled = true;
+            btn.textContent = "Отправляем...";
+            loader.style.display = "block";
+            
+            // Даем анимации загрузки проиграться перед отправкой
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            tg.sendData("download");
+            
+            // Закрываем через 1 секунду (можно убрать, если не нужно)
+            setTimeout(() => tg.close(), 1000);
         });
     </script>
 </body>
