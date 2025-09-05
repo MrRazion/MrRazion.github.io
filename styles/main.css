@@ -1,0 +1,239 @@
+:root {
+    --tg-theme-bg-color: #0f0f0f;
+    --tg-theme-text-color: #ffffff;
+    --tg-theme-button-color: #8774e1;
+    --tg-theme-button-text-color: #ffffff;
+    --tg-theme-secondary-bg-color: #1c1c1c;
+    --tg-theme-hint-color: #aaaaaa;
+    --tg-theme-link-color: #8774e1;
+    --tg-theme-header-bg-color: #1c1c1c;
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    line-height: 1.5;
+}
+
+.app-container {
+    padding-top: var(--safe-area-top);
+    padding-bottom: var(--safe-area-bottom);
+    padding-left: calc(16px + var(--safe-area-left));
+    padding-right: calc(16px + var(--safe-area-right));
+    min-height: 100vh;
+}
+
+/* Squircle элементы */
+.squircle {
+    border-radius: 18px;
+    background: var(--tg-theme-secondary-bg-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Шапка */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    margin-bottom: 20px;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.greeting {
+    font-size: 14px;
+    color: var(--tg-theme-hint-color);
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.balance-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.balance {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.currency {
+    font-size: 12px;
+    color: var(--tg-theme-hint-color);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.menu-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    background: var(--tg-theme-secondary-bg-color);
+}
+
+.menu-btn span {
+    width: 18px;
+    height: 2px;
+    background: var(--tg-theme-text-color);
+    border-radius: 1px;
+}
+
+/* Поиск и фильтры */
+.search-container {
+    margin-bottom: 16px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    color: var(--tg-theme-text-color);
+    font-size: 16px;
+}
+
+.search-input::placeholder {
+    color: var(--tg-theme-hint-color);
+}
+
+.filters-container {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 24px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.filters-container::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-btn {
+    padding: 12px 16px;
+    border: none;
+    color: var(--tg-theme-text-color);
+    font-size: 14px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+/* Сетка подарков */
+.gifts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.gift-item {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gift-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.gift-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.gift-id {
+    font-size: 12px;
+    color: var(--tg-theme-hint-color);
+}
+
+.gift-price {
+    padding: 8px 12px;
+    font-weight: bold;
+    color: var(--tg-theme-button-color);
+    align-self: flex-start;
+}
+
+/* Кнопка выхода из полноэкранного режима */
+.exit-fullscreen-btn {
+    position: fixed;
+    bottom: calc(20px + var(--safe-area-bottom));
+    right: calc(20px + var(--safe-area-right));
+    width: 50px;
+    height: 50px;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+    z-index: 100;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .gifts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-container {
+        gap: 8px;
+    }
+    
+    .filter-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+}
