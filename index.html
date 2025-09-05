@@ -2,609 +2,75 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LagarShop</title>
+    <link rel="stylesheet" href="styles/loading.css">
+    <link rel="stylesheet" href="styles/main.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --squircle-radius: 20px;
-            --primary-color: #1E90FF;
-            --secondary-color: #FFD700;
-            --background-color: #121212;
-            --surface-color: #1E1E1E;
-            --text-color: #FFFFFF;
-            --text-secondary: #A0A0A0;
-            --accent-color: #FF4081;
-            --success-color: #4CAF50;
-            --error-color: #F44336;
-            --progress-color: #2196F3;
-            --shadow-small: 0 2px 4px rgba(0, 0, 0, 0.2);
-            --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.3);
-            --shadow-large: 0 8px 16px rgba(0, 0, 0, 0.4);
-            --transition-fast: 0.2s ease;
-            --transition-medium: 0.3s ease;
-            --transition-slow: 0.5s ease;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            padding-top: var(--tg-safe-area-inset-top, env(safe-area-inset-top));
-            padding-bottom: var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom));
-            padding-left: var(--tg-safe-area-inset-left, env(safe-area-inset-left));
-            padding-right: var(--tg-safe-area-inset-right, env(safe-area-inset-right));
-        }
-
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #000000 0%, #1A1A1A 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            transition: opacity var(--transition-slow);
-            animation: pulse 2s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            100% { opacity: 0.8; }
-        }
-
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #app-title {
-            font-size: 3em;
-            font-weight: 700;
-            margin-bottom: 30%;
-            color: var(--secondary-color);
-            text-shadow: 0 0 15px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);
-            letter-spacing: 2px;
-            animation: glow 1.5s infinite alternate;
-        }
-
-        @keyframes glow {
-            0% { text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-            100% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
-        }
-
-        #progress-bar {
-            width: 85%;
-            height: 25px;
-            background-color: var(--surface-color);
-            border-radius: var(--squircle-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-medium);
-            position: relative;
-        }
-
-        #progress-fill {
-            height: 100%;
-            width: 0;
-            background: linear-gradient(90deg, var(--progress-color), #64B5F6);
-            transition: width var(--transition-medium);
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        #progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.9em;
-            color: var(--text-color);
-            z-index: 1;
-        }
-
-        #main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity var(--transition-slow);
-        }
-
-        #main-content.visible {
-            opacity: 1;
-        }
-
-        #header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: var(--surface-color);
-            border-radius: var(--squircle-radius);
-            box-shadow: var(--shadow-small);
-        }
-
-        #greeting {
-            font-size: 1.4em;
-            font-weight: 600;
-            color: var(--text-color);
-        }
-
-        #user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #balance {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            font-size: 1.2em;
-        }
-
-        #balance-value {
-            font-weight: 700;
-            color: var(--secondary-color);
-        }
-
-        #balance-unit {
-            font-size: 0.8em;
-            color: var(--text-secondary);
-        }
-
-        #avatar {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: 2px solid var(--primary-color);
-            object-fit: cover;
-            box-shadow: var(--shadow-small);
-        }
-
-        #menu-button {
-            width: 45px;
-            height: 45px;
-            background-color: var(--surface-color);
-            border-radius: var(--squircle-radius);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color var(--transition-fast);
-            box-shadow: var(--shadow-small);
-        }
-
-        #menu-button:hover {
-            background-color: #2A2A2A;
-        }
-
-        .menu-line {
-            width: 25px;
-            height: 3px;
-            background-color: var(--text-color);
-            margin: 4px 0;
-            transition: transform var(--transition-fast);
-        }
-
-        #menu-button.active .menu-line:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-
-        #menu-button.active .menu-line:nth-child(2) {
-            opacity: 0;
-        }
-
-        #menu-button.active .menu-line:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -6px);
-        }
-
-        #search-bar {
-            width: 100%;
-            padding: 14px 20px;
-            background-color: var(--surface-color);
-            border-radius: var(--squircle-radius);
-            border: none;
-            color: var(--text-color);
-            font-size: 1.1em;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-small);
-            transition: box-shadow var(--transition-fast);
-        }
-
-        #search-bar:focus {
-            box-shadow: var(--shadow-medium);
-            outline: none;
-        }
-
-        #filters {
-            display: flex;
-            overflow-x: auto;
-            margin-bottom: 20px;
-            gap: 10px;
-            padding-bottom: 10px;
-        }
-
-        #filters::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        #filters::-webkit-scrollbar-thumb {
-            background-color: var(--text-secondary);
-            border-radius: 10px;
-        }
-
-        .filter-button {
-            padding: 10px 16px;
-            background-color: var(--surface-color);
-            border-radius: var(--squircle-radius);
-            display: flex;
-            align-items: center;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: background-color var(--transition-fast), transform var(--transition-fast);
-            box-shadow: var(--shadow-small);
-            color: var(--text-color);
-            font-size: 1em;
-        }
-
-        .filter-button.active {
-            background-color: var(--primary-color);
-            transform: scale(1.05);
-        }
-
-        .filter-button:hover {
-            background-color: #2A2A2A;
-        }
-
-        .filter-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-            background-color: var(--accent-color);
-            border-radius: 6px;
-            /* Replace with actual SVG or image for icons */
-        }
-
-        #gifts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-        }
-
-        .gift-item {
-            background-color: var(--surface-color);
-            border-radius: var(--squircle-radius);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            box-shadow: var(--shadow-medium);
-            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-            cursor: pointer;
-        }
-
-        .gift-item:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-large);
-        }
-
-        .gift-icon {
-            width: 100px;
-            height: 100px;
-            background-color: var(--secondary-color);
-            border-radius: 50%;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow-small);
-            /* Replace with actual gift image */
-            background-size: cover;
-            background-position: center;
-        }
-
-        .gift-name {
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: var(--text-color);
-        }
-
-        .gift-number {
-            font-size: 0.9em;
-            color: var(--text-secondary);
-            margin-left: 6px;
-        }
-
-        .gift-price {
-            padding: 8px 16px;
-            background-color: var(--primary-color);
-            border-radius: var(--squircle-radius);
-            font-size: 1em;
-            font-weight: 500;
-            margin-top: 12px;
-            box-shadow: var(--shadow-small);
-            color: var(--text-color);
-        }
-
-        #error-message {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px;
-            background-color: var(--error-color);
-            color: var(--text-color);
-            border-radius: var(--squircle-radius);
-            font-size: 1em;
-            z-index: 999;
-            opacity: 0;
-            transition: opacity var(--transition-medium);
-            box-shadow: var(--shadow-medium);
-        }
-
-        #error-message.visible {
-            opacity: 1;
-        }
-
-        #exit-fullscreen {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 12px 20px;
-            background-color: var(--accent-color);
-            color: var(--text-color);
-            border: none;
-            border-radius: var(--squircle-radius);
-            font-size: 1.1em;
-            cursor: pointer;
-            box-shadow: var(--shadow-medium);
-            z-index: 999;
-            transition: transform var(--transition-fast);
-            display: none;
-        }
-
-        #exit-fullscreen:hover {
-            transform: scale(1.05);
-        }
-
-        /* Additional animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .fade-in {
-            animation: fadeIn var(--transition-slow);
-        }
-    </style>
 </head>
 <body>
-    <div id="loading-screen">
-        <div id="app-title">LagarShop</div>
-        <div id="progress-bar">
-            <div id="progress-fill"></div>
-            <span id="progress-text">0%</span>
-        </div>
-    </div>
-    <div id="main-content">
-        <div id="header">
-            <div id="greeting"></div>
-            <div id="user-info">
-                <div id="balance">
-                    <span id="balance-value">0</span>
-                    <span id="balance-unit">LC</span>
-                </div>
-                <img id="avatar" src="" alt="Avatar">
-                <div id="menu-button">
-                    <div class="menu-line"></div>
-                    <div class="menu-line"></div>
-                    <div class="menu-line"></div>
-                </div>
+    <!-- Загрузочный экран -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <h1 class="app-title">LagarShop</h1>
+            <div class="progress-container squircle">
+                <div class="progress-bar" id="progress-bar"></div>
             </div>
         </div>
-        <input id="search-bar" type="text" placeholder="Поиск подарка по названию или номеру">
-        <div id="filters">
-            <button class="filter-button" data-filter="mixer"><div class="filter-icon"></div>Микшер</button>
-            <button class="filter-button" data-filter="nft"><div class="filter-icon"></div>NFT</button>
-            <button class="filter-button" data-filter="model"><div class="filter-icon"></div>Модель</button>
-            <button class="filter-button" data-filter="background"><div class="filter-icon"></div>Фон</button>
-            <button class="filter-button" data-filter="symbol"><div class="filter-icon"></div>Символ</button>
-            <button class="filter-button" data-filter="price"><div class="filter-icon"></div>Цена</button>
-        </div>
-        <div id="gifts-grid"></div>
     </div>
-    <button id="exit-fullscreen">Выход из полноэкранного режима</button>
-    <div id="error-message"></div>
 
-    <script>
-        const WebApp = window.Telegram.WebApp;
-        WebApp.ready();
+    <!-- Основной интерфейс -->
+    <div id="app" class="app-container hidden">
+        <header class="header">
+            <div class="header-left">
+                <div id="greeting" class="greeting"></div>
+                <div id="user-name" class="user-name"></div>
+            </div>
+            <div class="header-right">
+                <div class="balance-container">
+                    <span id="balance" class="balance">0</span>
+                    <span class="currency">LC</span>
+                </div>
+                <div class="squircle user-avatar">
+                    <img id="user-avatar" src="" alt="Аватар">
+                </div>
+                <button class="squircle menu-btn" id="menu-btn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </header>
 
-        // Проверка версии для fullscreen
-        const webAppVersion = parseFloat(WebApp.version);
-        const supportsFullscreen = webAppVersion >= 8.0;
+        <main class="main-content">
+            <div class="search-container">
+                <input type="text" class="search-input squircle" placeholder="Поиск подарка по названию или номеру...">
+            </div>
 
-        // Запуск в полноэкранном режиме, если поддерживается
-        if (supportsFullscreen) {
-            try {
-                if (!WebApp.isFullscreen) {
-                    WebApp.requestFullscreen().catch(err => {
-                        console.error('Не удалось войти в полноэкранный режим:', err);
-                        showError('Fullscreen не поддерживается на этом устройстве');
-                    });
-                }
-                document.getElementById('exit-fullscreen').style.display = 'block';
-            } catch (err) {
-                console.error('Ошибка fullscreen:', err);
-                showError('Ошибка при попытке fullscreen');
-            }
-        } else {
-            console.log('Fullscreen не поддерживается в версии ' + WebApp.version);
-            showError('Fullscreen не поддерживается в вашей версии Telegram WebApp');
-        }
+            <div class="filters-container">
+                <button class="filter-btn squircle">
+                    <img src="assets/icons/filter.svg" alt="Фильтр">
+                </button>
+                <button class="filter-btn squircle">NFT</button>
+                <button class="filter-btn squircle">Модель</button>
+                <button class="filter-btn squircle">Фон</button>
+                <button class="filter-btn squircle">Символ</button>
+                <button class="filter-btn squircle">Цена</button>
+            </div>
 
-        // Кнопка выхода из полноэкранного режима
-        document.getElementById('exit-fullscreen').addEventListener('click', () => {
-            if (supportsFullscreen) {
-                try {
-                    WebApp.exitFullscreen();
-                } catch (err) {
-                    console.error('Ошибка выхода из fullscreen:', err);
-                    showError('Ошибка выхода из fullscreen');
-                }
-            }
-        });
+            <div class="gifts-grid" id="gifts-container">
+                <!-- Подарки будут загружены здесь -->
+            </div>
+        </main>
 
-        // Функция показа ошибок
-        function showError(message) {
-            const errorEl = document.getElementById('error-message');
-            errorEl.textContent = message;
-            errorEl.classList.add('visible');
-            setTimeout(() => {
-                errorEl.classList.remove('visible');
-            }, 5000);
-        }
+        <!-- Кнопка выхода из полноэкранного режима -->
+        <button id="exit-fullscreen" class="exit-fullscreen-btn squircle hidden">
+            <img src="assets/icons/exit-fullscreen.svg" alt="Выйти из полноэкранного режима">
+        </button>
+    </div>
 
-        // Проверка данных initData (отправка на бэкенд для валидации)
-        const initData = WebApp.initData;
-        const user = WebApp.initDataUnsafe.user || { first_name: 'Пользователь', photo_url: '' }; // Для демонстрации
-
-        // Симуляция/реальная валидация на бэкенде
-        async function validateInitData() {
-            // В реальном приложении: fetch('/api/validate', { method: 'POST', body: JSON.stringify({ initData }) })
-            // Здесь симуляция
-            return new Promise(resolve => setTimeout(() => resolve(true), 1000));
-        }
-
-        // Загрузка
-        const loadingScreen = document.getElementById('loading-screen');
-        const mainContent = document.getElementById('main-content');
-        const progressFill = document.getElementById('progress-fill');
-        const progressText = document.getElementById('progress-text');
-
-        let progress = 0;
-        const loadingSteps = [
-            { label: 'Инициализация', duration: 500 },
-            { label: 'Валидация данных', duration: 1000 },
-            { label: 'Загрузка профиля', duration: 800 },
-            { label: 'Загрузка подарков', duration: 1200 },
-            { label: 'Завершение', duration: 500 }
-        ];
-
-        async function startLoading() {
-            for (let step of loadingSteps) {
-                progressText.textContent = step.label + '...';
-                await new Promise(resolve => setTimeout(resolve, step.duration));
-                progress += 100 / loadingSteps.length;
-                progressFill.style.width = `${progress}%`;
-                progressText.textContent = `${Math.round(progress)}%`;
-            }
-            // Валидация
-            const isValid = await validateInitData();
-            if (!isValid) {
-                showError('Данные не валидны. Пожалуйста, перезапустите приложение.');
-                return;
-            }
-            loadingScreen.classList.add('hidden');
-            mainContent.classList.add('visible', 'fade-in');
-            loadAppData();
-        }
-
-        startLoading();
-
-        // Загрузка данных
-        async function loadAppData() {
-            // Приветствие
-            const hour = new Date().getHours();
-            let greetingText = '';
-            if (hour >= 0 && hour < 6) greetingText = 'Доброй ночи';
-            else if (hour >= 6 && hour < 12) greetingText = 'Доброе утро';
-            else if (hour >= 12 && hour < 18) greetingText = 'Добрый день';
-            else greetingText = 'Добрый вечер';
-            document.getElementById('greeting').textContent = `${greetingText}, ${user.first_name || 'Пользователь'}`;
-
-            // Баланс (мок или с бэкенда)
-            document.getElementById('balance-value').textContent = '1500'; // Пример
-
-            // Аватар
-            document.getElementById('avatar').src = user.photo_url || 'https://via.placeholder.com/45';
-
-            // Меню (пример, добавьте функционал)
-            document.getElementById('menu-button').addEventListener('click', () => {
-                this.classList.toggle('active');
-                // Добавьте меню логику здесь
-                alert('Меню открыто');
-            });
-
-            // Фильтры (добавьте логику)
-            const filterButtons = document.querySelectorAll('.filter-button');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    button.classList.toggle('active');
-                    // Фильтрация подарков
-                    filterGifts();
-                });
-            });
-
-            // Поиск
-            document.getElementById('search-bar').addEventListener('input', (e) => {
-                filterGifts(e.target.value);
-            });
-
-            // Подарки (мок, в реале - fetch('/api/gifts'))
-            const giftData = [
-                { name: 'Lol Pop', number: '#387,520', basePriceRub: 450, icon: 'https://via.placeholder.com/100?text=Lol+Pop' },
-                { name: 'Desk Calendar', number: '#111,111', basePriceRub: 500, icon: 'https://via.placeholder.com/100?text=Calendar' },
-                { name: 'Gift 3', number: '#222,222', basePriceRub: 600, icon: 'https://via.placeholder.com/100?text=Gift3' },
-                { name: 'Gift 4', number: '#333,333', basePriceRub: 400, icon: 'https://via.placeholder.com/100?text=Gift4' },
-                { name: 'Gift 5', number: '#444,444', basePriceRub: 550, icon: 'https://via.placeholder.com/100?text=Gift5' },
-                { name: 'Gift 6', number: '#555,555', basePriceRub: 480, icon: 'https://via.placeholder.com/100?text=Gift6' }
-            ];
-
-            // Цены с fragment (в реале - скрапинг на бэкенде или API)
-            // Здесь мок, +10%
-            const giftsGrid = document.getElementById('gifts-grid');
-            giftData.forEach(gift => {
-                const priceLC = Math.round(gift.basePriceRub * 1.1);
-                const giftElement = document.createElement('div');
-                giftElement.classList.add('gift-item');
-                giftElement.innerHTML = `
-                    <div class="gift-icon" style="background-image: url('${gift.icon}');"></div>
-                    <div class="gift-name">${gift.name} <span class="gift-number">(${gift.number})</span></div>
-                    <div class="gift-price">${priceLC} LC</div>
-                `;
-                giftsGrid.appendChild(giftElement);
-            });
-
-            // Функция фильтрации (пример)
-            function filterGifts(searchTerm = '') {
-                const items = giftsGrid.querySelectorAll('.gift-item');
-                items.forEach(item => {
-                    const name = item.querySelector('.gift-name').textContent.toLowerCase();
-                    item.style.display = name.includes(searchTerm.toLowerCase()) ? 'flex' : 'none';
-                });
-            }
-        }
-
-        // Для реального приложения: Интегрируйте бэкенд для валидации, подарков, цен (скрапинг fragment.com/gifts на сервере)
-        // Пример fetch цены: async function getPrice(giftName) { return fetch('/api/price?gift=' + giftName).then(res => res.json()); }
-    </script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/app.js"></script>
 </body>
 </html>
