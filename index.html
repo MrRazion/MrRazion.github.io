@@ -1,162 +1,379 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LagarShop</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --squircle-radius: 20px;
+            --primary-color: #1E90FF;
+            --background-color: #121212;
+            --text-color: #FFFFFF;
+            --accent-color: #FFD700;
+            --progress-color: #4CAF50;
+        }
+
         body {
-            background-color: #2a2a2a;
             margin: 0;
-            padding: 15px;
-            font-family: Arial, sans-serif;
-            color: #ffffff;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding-top: var(--tg-safe-area-inset-top, env(safe-area-inset-top));
+            padding-bottom: var(--tg-safe-area-inset-bottom, env(safe-area-inset-bottom));
+            padding-left: var(--tg-safe-area-inset-left, env(safe-area-inset-left));
+            padding-right: var(--tg-safe-area-inset-right, env(safe-area-inset-right));
         }
 
-        .faq-container {
-            max-width: 100%;
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1A1A1A 0%, #000000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
         }
 
-        .faq-item {
-            background-color: #3a3a3a;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            padding: 15px;
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .faq-header {
+        #app-title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20%;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        #progress-bar {
+            width: 80%;
+            height: 20px;
+            background-color: #333;
+            border-radius: var(--squircle-radius);
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--progress-color), #8BC34A);
+            transition: width 0.3s ease;
+        }
+
+        #main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+
+        #main-content.visible {
+            opacity: 1;
+        }
+
+        #header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
+            margin-bottom: 16px;
         }
 
-        .faq-question {
-            font-size: 16px;
+        #greeting {
+            font-size: 1.2em;
             font-weight: bold;
-            margin: 0;
         }
 
-        .toggle-btn {
-            width: 30px;
-            height: 30px;
-            background-color: #4a4a4a;
-            border-radius: 8px;
+        #user-info {
             display: flex;
             align-items: center;
+        }
+
+        #balance {
+            font-size: 1.2em;
+            margin-right: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        #balance-value {
+            font-weight: bold;
+        }
+
+        #balance-unit {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        #menu-button {
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            border-radius: var(--squircle-radius);
+            display: flex;
+            flex-direction: column;
             justify-content: center;
-            transition: all 0.3s ease;
+            align-items: center;
+            margin-left: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        .arrow {
-            width: 0;
-            height: 0;
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 8px solid #ffffff;
-            transition: transform 0.3s ease;
+        .menu-line {
+            width: 20px;
+            height: 2px;
+            background-color: var(--text-color);
+            margin: 3px 0;
         }
 
-        .arrow.up {
-            transform: rotate(180deg);
+        #avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #444;
+            margin-right: 8px;
+            /* Placeholder; in real app, set src to user's avatar URL if available via backend */
         }
 
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            font-size: 14px;
-            line-height: 1.4;
-            color: #d0d0d0;
+        #search-bar {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: #222;
+            border-radius: var(--squircle-radius);
+            border: none;
+            color: var(--text-color);
+            font-size: 1em;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
-        .faq-answer.active {
-            max-height: 200px; /* Adjust based on content */
-            padding-top: 10px;
+        #filters {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 16px;
+            gap: 8px;
+        }
+
+        .filter-button {
+            padding: 8px 12px;
+            background-color: #333;
+            border-radius: var(--squircle-radius);
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            background-color: var(--primary-color); /* Placeholder for icons */
+            border-radius: 4px;
+        }
+
+        #gifts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .gift-item {
+            background-color: #222;
+            border-radius: var(--squircle-radius);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease;
+        }
+
+        .gift-item:hover {
+            transform: scale(1.05);
+        }
+
+        .gift-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--accent-color); /* Placeholder for gift icon */
+            border-radius: 50%;
+            margin-bottom: 8px;
+        }
+
+        .gift-name {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .gift-number {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-left: 4px;
+        }
+
+        .gift-price {
+            padding: 6px 12px;
+            background-color: #333;
+            border-radius: var(--squircle-radius);
+            font-size: 0.9em;
+            margin-top: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        #exit-fullscreen {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: var(--squircle-radius);
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 999;
         }
     </style>
 </head>
 <body>
-    <div class="faq-container">
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleAnswer(1)">
-                <p class="faq-question">Как пополнить баланс?</p>
-                <div class="toggle-btn">
-                    <div class="arrow"></div>
-                </div>
-            </div>
-            <div class="faq-answer" id="answer-1">
-                Выберите "Пополнить баланс" в профиле, укажите сумму и переведите деньги на указанные реквизиты. После отправьте скриншот платежа.
-            </div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleAnswer(2)">
-                <p class="faq-question">Сколько ждать пополнения?</p>
-                <div class="toggle-btn">
-                    <div class="arrow"></div>
-                </div>
-            </div>
-            <div class="faq-answer" id="answer-2">
-                Обычно проверка занимает от 5 минут до 1 часа в рабочее время. В ночное время может быть до 12 часов.
-            </div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleAnswer(3)">
-                <p class="faq-question">Что делать, если платеж не пришел?</p>
-                <div class="toggle-btn">
-                    <div class="arrow"></div>
-                </div>
-            </div>
-            <div class="faq-answer" id="answer-3">
-                Напишите в поддержку через кнопку "Поддержка" в главном меню, указав сумму и приложив скриншот платежа.
-            </div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleAnswer(4)">
-                <p class="faq-question">Можно ли вернуть деньги?</p>
-                <div class="toggle-btn">
-                    <div class="arrow"></div>
-                </div>
-            </div>
-            <div class="faq-answer" id="answer-4">
-                Возврат возможен только в случае ошибки с нашей стороны. Ознакомьтесь с политикой возврата в "Политике конфиденциальности".
-            </div>
-        </div>
-
-        <div class="faq-item">
-            <div class="faq-header" onclick="toggleAnswer(5)">
-                <p class="faq-question">Как использовать промокод?</p>
-                <div class="toggle-btn">
-                    <div class="arrow"></div>
-                </div>
-            </div>
-            <div class="faq-answer" id="answer-5">
-                В профиле выберите "Активировать промокод", введите код и подтвердите. Баланс обновится автоматически.
-            </div>
+    <div id="loading-screen">
+        <div id="app-title">LagarShop</div>
+        <div id="progress-bar">
+            <div id="progress-fill"></div>
         </div>
     </div>
+    <div id="main-content">
+        <div id="header">
+            <div id="greeting"></div>
+            <div id="user-info">
+                <div id="balance">
+                    <span id="balance-value">0</span>
+                    <span id="balance-unit">LC</span>
+                </div>
+                <img id="avatar" src="" alt="Avatar">
+                <div id="menu-button">
+                    <div class="menu-line"></div>
+                    <div class="menu-line"></div>
+                    <div class="menu-line"></div>
+                </div>
+            </div>
+        </div>
+        <input id="search-bar" type="text" placeholder="Поиск подарка по названию или номеру">
+        <div id="filters">
+            <button class="filter-button"><div class="filter-icon"></div>Микшер</button>
+            <button class="filter-button"><div class="filter-icon"></div>NFT</button>
+            <button class="filter-button"><div class="filter-icon"></div>Модель</button>
+            <button class="filter-button"><div class="filter-icon"></div>Фон</button>
+            <button class="filter-button"><div class="filter-icon"></div>Символ</button>
+            <button class="filter-button"><div class="filter-icon"></div>Цена</button>
+        </div>
+        <div id="gifts-grid"></div>
+    </div>
+    <button id="exit-fullscreen">Выход из полноэкранного режима</button>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        function toggleAnswer(id) {
-            const answer = document.getElementById(`answer-${id}`);
-            const arrow = answer.previousElementSibling.querySelector('.arrow');
-            
-            if (answer.classList.contains('active')) {
-                answer.classList.remove('active');
-                arrow.classList.remove('up');
-            } else {
-                answer.classList.add('active');
-                arrow.classList.add('up');
-            }
+        const WebApp = window.Telegram.WebApp;
+        WebApp.ready();
+
+        // Запуск в полноэкранном режиме
+        if (!WebApp.isFullscreen) {
+            WebApp.requestFullscreen().catch(err => {
+                console.error('Не удалось войти в полноэкранный режим:', err);
+            });
         }
 
-        // Инициализация Telegram Web App
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
+        // Кнопка выхода из полноэкранного режима
+        document.getElementById('exit-fullscreen').addEventListener('click', () => {
+            WebApp.exitFullscreen();
+        });
+
+        // Проверка данных initData (на бэкенде)
+        // Пример: Отправьте WebApp.initData на ваш сервер для валидации
+        // На сервере: Используйте HMAC-SHA-256 с секретным ключом (SHA256(bot_token) как ключ, data-check-string как сообщение)
+        // Здесь только клиентская часть, валидация на сервере обязательна для безопасности
+        const initData = WebApp.initData;
+        const user = WebApp.initDataUnsafe.user || { first_name: 'User' }; // Для демонстрации
+
+        // Симуляция загрузки и проверки данных
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainContent = document.getElementById('main-content');
+        const progressFill = document.getElementById('progress-fill');
+
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            progressFill.style.width = `${progress}%`;
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    mainContent.classList.add('visible');
+                    loadAppData();
+                }, 500);
+            }
+        }, 300);
+
+        // Загрузка данных приложения
+        async function loadAppData() {
+            // Приветствие на основе времени
+            const hour = new Date().getHours();
+            let greetingText = '';
+            if (hour < 6) greetingText = 'Доброй ночи';
+            else if (hour < 12) greetingText = 'Доброе утро';
+            else if (hour < 18) greetingText = 'Добрый день';
+            else greetingText = 'Добрый вечер';
+            document.getElementById('greeting').textContent = `${greetingText}, ${user.first_name}`;
+
+            // Баланс (мок, получите с бэкенда)
+            document.getElementById('balance-value').textContent = '1000';
+
+            // Аватар (мок, получите URL с бэкенда, Telegram не предоставляет напрямую)
+            document.getElementById('avatar').src = 'https://via.placeholder.com/40'; // Placeholder
+
+            // Подарки (мок, получите с бэкенда, который проверяет подарки пользователя через Telegram API или базу)
+            const gifts = [
+                { name: 'Lol Pop', number: '#387,520', basePriceRub: 450 }, // Базовая цена из fragment ~450 руб
+                { name: 'Desk Calendar', number: '#111,111', basePriceRub: 500 },
+                // Добавьте больше
+            ];
+
+            const giftsGrid = document.getElementById('gifts-grid');
+            gifts.forEach(gift => {
+                const priceLC = Math.round(gift.basePriceRub * 1.1); // +10%
+                const giftElement = document.createElement('div');
+                giftElement.classList.add('gift-item');
+                giftElement.innerHTML = `
+                    <div class="gift-icon"></div>
+                    <div class="gift-name">${gift.name} <span class="gift-number">(${gift.number})</span></div>
+                    <div class="gift-price">${priceLC} LC</div>
+                `;
+                giftsGrid.appendChild(giftElement);
+            });
+        }
+
+        // Для реального приложения: Используйте fetch к вашему бэкенду для получения подарков и цен
+        // Пример: fetch('/api/gifts', { method: 'POST', body: JSON.stringify({ initData }) })
+        // На бэкенде валидируйте initData, получите подарки пользователя (если бот отслеживает), получите цены с fragment (скрапинг или API если есть)
+        // Для цен: Поскольку fragment не имеет публичного API, используйте скрапинг на сервере (будьте осторожны с TOS), или хардкод на основе данных.
     </script>
 </body>
 </html>
