@@ -588,6 +588,9 @@
         
         // Переменные для отслеживания прогресса
         let isDownloading = false;
+        let downloadProgressHandler = null;
+        let downloadCompleteHandler = null;
+        let downloadFailedHandler = null;
         
         // Обработчики для вкладок
         document.querySelectorAll('.tab').forEach(tab => {
@@ -646,7 +649,8 @@
         // Функция для запроса разрешения на доступ к файлам
         function requestStoragePermission() {
             return new Promise((resolve, reject) => {
-                if (tg.isVersionAtLeast('6.1')) {
+                // Проверяем, доступен ли метод requestWriteAccess
+                if (tg.requestWriteAccess && typeof tg.requestWriteAccess === 'function') {
                     // Для более новых версий WebApp
                     tg.requestWriteAccess()
                         .then(() => resolve(true))
@@ -669,6 +673,66 @@
                         resolve(true);
                     }
                 }
+            });
+        }
+        
+        // Функция для скачивания файла с использованием промиса
+        function downloadFileWithPromise() {
+            return new Promise((resolve, reject) => {
+                // Проверяем, доступен ли метод downloadFile
+                if (!tg.downloadFile || typeof tg.downloadFile !== 'function') {
+                    reject(new Error('Метод downloadFile не доступен в текущей версии Telegram'));
+                    return;
+                }
+                
+                // Создаем обработчики событий
+                downloadProgressHandler = (data) => {
+                    if (data.url === DOWNLOAD_URL) {
+                        const percent = Math.round((data.loaded / data.total) * 100);
+                        updateProgress(percent);
+                    }
+                };
+                
+                downloadCompleteHandler = (data) => {
+                    if (data.url === DOWNLOAD_URL) {
+                        // Удаляем обработчики событий
+                        tg.offEvent('downloadProgress', downloadProgressHandler);
+                        tg.offEvent('downloadComplete', downloadCompleteHandler);
+                        tg.offEvent('downloadFailed', downloadFailedHandler);
+                        
+                        updateProgress(100);
+                        resolve(data);
+                    }
+                };
+                
+                downloadFailedHandler = (data) => {
+                    if (data.url === DOWNLOAD_URL) {
+                        // Удаляем обработчики событий
+                        tg.offEvent('downloadProgress', downloadProgressHandler);
+                        tg.offEvent('downloadComplete', downloadCompleteHandler);
+                        tg.offEvent('downloadFailed', downloadFailedHandler);
+                        
+                        reject(new Error(data.error || 'Неизвестная ошибка загрузки'));
+                    }
+                };
+                
+                // Подписываемся на события
+                tg.onEvent('downloadProgress', downloadProgressHandler);
+                tg.onEvent('downloadComplete', downloadCompleteHandler);
+                tg.onEvent('downloadFailed', downloadFailedHandler);
+                
+                // Запускаем загрузку
+                tg.downloadFile(DOWNLOAD_URL, FILE_NAME);
+                
+                // Устанавливаем таймаут на случай, если события не придут
+                setTimeout(() => {
+                    // Удаляем обработчики событий
+                    tg.offEvent('downloadProgress', downloadProgressHandler);
+                    tg.offEvent('downloadComplete', downloadCompleteHandler);
+                    tg.offEvent('downloadFailed', downloadFailedHandler);
+                    
+                    reject(new Error('Таймаут загрузки файла'));
+                }, 60000); // 60 секунд
             });
         }
         
@@ -700,58 +764,19 @@
                 // Начинаем загрузку
                 statusText.textContent = 'Подготовка загрузки...';
                 
-                // Используем метод downloadFile из Telegram WebApp API
-                if (tg.platform !== 'unknown' && tg.downloadFile) {
-                    // Показываем прогресс
-                    updateProgress(5);
-                    
-                    // Запускаем загрузку
-                    tg.downloadFile(DOWNLOAD_URL, FILE_NAME);
-                    
-                    // Слушаем события прогресса
-                    tg.onEvent('downloadProgress', (data) => {
-                        if (data.url === DOWNLOAD_URL) {
-                            const percent = Math.round((data.loaded / data.total) * 100);
-                            updateProgress(percent);
-                        }
-                    });
-                    
-                    tg.onEvent('downloadComplete', (data) => {
-                        if (data.url === DOWNLOAD_URL) {
-                            updateProgress(100);
-                            showStatus('Файл успешно скачан и сохранен в вашей галерее/загрузках!', true);
-                            isDownloading = false;
-                            downloadBtn.disabled = false;
-                            downloadBtn.textContent = 'Скачать еще раз';
-                        }
-                    });
-                    
-                    tg.onEvent('downloadFailed', (data) => {
-                        if (data.url === DOWNLOAD_URL) {
-                            showStatus('Ошибка загрузки: ' + (data.error || 'Неизвестная ошибка'), false);
-                            updateProgress(0);
-                            isDownloading = false;
-                            downloadBtn.disabled = false;
-                            downloadBtn.textContent = 'Попробовать снова';
-                        }
-                    });
-                    
-                } else {
-                    // Альтернативный метод для платформ, которые не поддерживают downloadFile
-                    showStatus('Спасибо за использование PLUGG BOT! Мы ценим ваш выбор <3', true);
-                    
-                    // Открываем ссылку в браузере
-                    tg.openLink(DOWNLOAD_URL);
-                    
-                    isDownloading = false;
-                    downloadBtn.disabled = false;
-                    downloadBtn.textContent = 'Скачать CrazyMita';
-                    progressContainer.style.display = 'none';
-                }
+                // Используем нашу функцию для скачивания с промисом
+                await downloadFileWithPromise();
+                
+                // Успешное завершение
+                showStatus('Файл успешно скачан и сохранен в вашей галерее/загрузках!', true);
+                isDownloading = false;
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Скачать еще раз';
                 
             } catch (error) {
                 console.error('Download error:', error);
                 showStatus('Ошибка: ' + error.message, false);
+                updateProgress(0);
                 isDownloading = false;
                 downloadBtn.disabled = false;
                 downloadBtn.textContent = 'Попробовать снова';
