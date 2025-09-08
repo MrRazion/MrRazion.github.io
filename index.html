@@ -569,8 +569,23 @@
 
     <script>
         // Инициализация Telegram Web App
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        let tg;
+        try {
+            tg = window.Telegram?.WebApp;
+            if (!tg) {
+                throw new Error('Telegram WebApp не доступен');
+            }
+            tg.expand();
+        } catch (error) {
+            console.error('Ошибка инициализации Telegram WebApp:', error);
+            // Показываем сообщение об ошибке, если Telegram WebApp не доступен
+            document.body.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h2>Ошибка загрузки</h2>
+                    <p>Приложение должно быть запущено через Telegram</p>
+                </div>
+            `;
+        }
         
         // Элементы интерфейса
         const downloadBtn = document.getElementById('download-btn');
@@ -610,11 +625,15 @@
                 if (gameId === 'crazymita') {
                     gameDetails.classList.add('active');
                 } else {
-                    tg.showPopup({
-                        title: 'Скоро будет доступно',
-                        message: 'Эта игра находится в разработке и скоро будет доступна для скачивания!',
-                        buttons: [{type: 'ok', text: 'Понятно'}]
-                    });
+                    if (tg && tg.showPopup) {
+                        tg.showPopup({
+                            title: 'Скоро будет доступно',
+                            message: 'Эта игра находится в разработке и скоро будет доступна для скачивания!',
+                            buttons: [{type: 'ok', text: 'Понятно'}]
+                        });
+                    } else {
+                        alert('Эта игра находится в разработке и скоро будет доступна для скачивания!');
+                    }
                 }
             });
         });
@@ -650,7 +669,7 @@
         function requestStoragePermission() {
             return new Promise((resolve, reject) => {
                 // Проверяем, доступен ли метод requestWriteAccess
-                if (tg.requestWriteAccess && typeof tg.requestWriteAccess === 'function') {
+                if (tg?.requestWriteAccess && typeof tg.requestWriteAccess === 'function') {
                     // Для более новых версий WebApp
                     tg.requestWriteAccess()
                         .then(() => resolve(true))
@@ -658,18 +677,23 @@
                 } else {
                     // Для старых версий используем альтернативный подход
                     try {
-                        tg.showPopup({
-                            title: 'Разрешение требуется',
-                            message: 'Приложению требуется доступ к хранилищу для сохранения файла. Разрешить доступ?',
-                            buttons: [
-                                {type: 'ok', text: 'Разрешить'},
-                                {type: 'cancel', text: 'Отмена'}
-                            ]
-                        }, (buttonId) => {
-                            resolve(buttonId === 'ok');
-                        });
+                        if (tg?.showPopup) {
+                            tg.showPopup({
+                                title: 'Разрешение требуется',
+                                message: 'Приложению требуется доступ к хранилищу для сохранения файла. Разрешить доступ?',
+                                buttons: [
+                                    {type: 'ok', text: 'Разрешить'},
+                                    {type: 'cancel', text: 'Отмена'}
+                                ]
+                            }, (buttonId) => {
+                                resolve(buttonId === 'ok');
+                            });
+                        } else {
+                            // Если popup не работает, предполагаем что разрешение есть
+                            resolve(true);
+                        }
                     } catch (e) {
-                        // Если popup не работает, предполагаем что разрешение есть
+                        console.error('Ошибка при запросе разрешения:', e);
                         resolve(true);
                     }
                 }
@@ -680,7 +704,7 @@
         function downloadFileWithPromise() {
             return new Promise((resolve, reject) => {
                 // Проверяем, доступен ли метод downloadFile
-                if (!tg.downloadFile || typeof tg.downloadFile !== 'function') {
+                if (!tg?.downloadFile || typeof tg.downloadFile !== 'function') {
                     reject(new Error('Метод downloadFile не доступен в текущей версии Telegram'));
                     return;
                 }
@@ -696,9 +720,11 @@
                 downloadCompleteHandler = (data) => {
                     if (data.url === DOWNLOAD_URL) {
                         // Удаляем обработчики событий
-                        tg.offEvent('downloadProgress', downloadProgressHandler);
-                        tg.offEvent('downloadComplete', downloadCompleteHandler);
-                        tg.offEvent('downloadFailed', downloadFailedHandler);
+                        if (tg.offEvent) {
+                            tg.offEvent('downloadProgress', downloadProgressHandler);
+                            tg.offEvent('downloadComplete', downloadCompleteHandler);
+                            tg.offEvent('downloadFailed', downloadFailedHandler);
+                        }
                         
                         updateProgress(100);
                         resolve(data);
@@ -708,18 +734,22 @@
                 downloadFailedHandler = (data) => {
                     if (data.url === DOWNLOAD_URL) {
                         // Удаляем обработчики событий
-                        tg.offEvent('downloadProgress', downloadProgressHandler);
-                        tg.offEvent('downloadComplete', downloadCompleteHandler);
-                        tg.offEvent('downloadFailed', downloadFailedHandler);
+                        if (tg.offEvent) {
+                            tg.offEvent('downloadProgress', downloadProgressHandler);
+                            tg.offEvent('downloadComplete', downloadCompleteHandler);
+                            tg.offEvent('downloadFailed', downloadFailedHandler);
+                        }
                         
                         reject(new Error(data.error || 'Неизвестная ошибка загрузки'));
                     }
                 };
                 
                 // Подписываемся на события
-                tg.onEvent('downloadProgress', downloadProgressHandler);
-                tg.onEvent('downloadComplete', downloadCompleteHandler);
-                tg.onEvent('downloadFailed', downloadFailedHandler);
+                if (tg.onEvent) {
+                    tg.onEvent('downloadProgress', downloadProgressHandler);
+                    tg.onEvent('downloadComplete', downloadCompleteHandler);
+                    tg.onEvent('downloadFailed', downloadFailedHandler);
+                }
                 
                 // Запускаем загрузку
                 tg.downloadFile(DOWNLOAD_URL, FILE_NAME);
@@ -727,9 +757,11 @@
                 // Устанавливаем таймаут на случай, если события не придут
                 setTimeout(() => {
                     // Удаляем обработчики событий
-                    tg.offEvent('downloadProgress', downloadProgressHandler);
-                    tg.offEvent('downloadComplete', downloadCompleteHandler);
-                    tg.offEvent('downloadFailed', downloadFailedHandler);
+                    if (tg.offEvent) {
+                        tg.offEvent('downloadProgress', downloadProgressHandler);
+                        tg.offEvent('downloadComplete', downloadCompleteHandler);
+                        tg.offEvent('downloadFailed', downloadFailedHandler);
+                    }
                     
                     reject(new Error('Таймаут загрузки файла'));
                 }, 60000); // 60 секунд
@@ -781,14 +813,27 @@
                 downloadBtn.disabled = false;
                 downloadBtn.textContent = 'Попробовать снова';
                 progressContainer.style.display = 'none';
+                
+                // Если метод downloadFile не доступен, открываем ссылку в браузере
+                if (error.message.includes('Метод downloadFile не доступен')) {
+                    if (tg?.openLink) {
+                        tg.openLink(DOWNLOAD_URL);
+                    } else {
+                        window.open(DOWNLOAD_URL, '_blank');
+                    }
+                }
             }
         }
         
         // Обработчик кнопки скачивания
-        downloadBtn.addEventListener('click', downloadFile);
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', downloadFile);
+        }
         
         // Инициализация при загрузке
-        tg.ready();
+        if (tg?.ready) {
+            tg.ready();
+        }
         updateProgress(0);
     </script>
 </body>
