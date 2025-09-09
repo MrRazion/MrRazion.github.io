@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pluggs Game Store</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -487,7 +487,7 @@
                         </div>
                     </div>
                     
-                    <button id="download-btn" class="download-btn">Скачать</button>
+                    <button id="download-btn" class="download-btn">Скачать CrazyMita</button>
                     
                     <div id="status-message" class="status-message"></div>
                 </div>
@@ -530,8 +530,8 @@
         const gameDetails = document.getElementById('crazymita-details');
         const searchInput = document.getElementById('search-input');
         
-        // URL для скачивания
-        const DOWNLOAD_URL = 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip';
+        // URL для скачивания (оригинальный)
+        const ORIGINAL_URL = 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip';
         const FILE_NAME = 'CrazyMita.zip';
         
         // Переменные для отслеживания прогресса
@@ -691,36 +691,102 @@
         function resetDownloadUI() {
             isDownloading = false;
             downloadBtn.disabled = false;
-            downloadBtn.textContent = 'Скачать';
+            downloadBtn.textContent = 'Скачать CrazyMita';
             progressContainer.style.display = 'none';
             statusMessage.style.display = 'none';
             updateProgress(0);
         }
         
-        // Функция для скачивания файла через бота
+        // Функция для скачивания файла
         function downloadFile() {
             if (isDownloading) return;
             
             isDownloading = true;
             downloadBtn.disabled = true;
-            downloadBtn.innerHTML = '<span class="loader"></span> Отправка запроса боту...';
-            progressContainer.style.display = 'none'; // Не показываем прогресс, так как используем sendData
+            downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
+            progressContainer.style.display = 'block';
+            statusText.textContent = 'Запрос на скачивание...';
+            updateProgress(0);
             
-            const botName = tg.initDataUnsafe?.bot_username || 'Pluggs';
-            showStatus(`${botName} предлагает скачать файл: CrazyMita. Запрос отправлен, проверьте чат с ботом.`, true);
+            // Добавляем уникальный параметр к URL для принудительной перезагрузки
+            const timestamp = Date.now();
+            const downloadUrl = `${ORIGINAL_URL}?t=${timestamp}`;
             
-            // Отправляем данные боту для обработки (бот должен отправить сообщение с файлом)
-            const data = JSON.stringify({
-                action: 'download',
-                game: 'CrazyMita',
-                file_name: FILE_NAME,
-                url: DOWNLOAD_URL
-            });
-            
-            // sendData закроет приложение после отправки
-            tg.sendData(data);
-            
-            // xhr = null; // Не нужно, так как не используем
+            if (tg.isVersionAtLeast('8.0')) {
+                // Use native downloadFile method with unique URL
+                tg.downloadFile({
+                    url: downloadUrl,
+                    file_name: FILE_NAME
+                }, (accepted) => {
+                    if (accepted) {
+                        statusText.textContent = 'Скачивание начато...';
+                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
+                        // Note: No progress available with native download, so simulate or just show message
+                        updateProgress(100); // Fake completion since no progress
+                    } else {
+                        showStatus('Скачивание отменено.', false);
+                    }
+                    resetDownloadUI();
+                    downloadBtn.textContent = 'Скачать еще раз';
+                });
+            } else {
+                // Fallback to XMLHttpRequest with unique URL
+                try {
+                    xhr = new XMLHttpRequest();
+                    xhr.open('GET', downloadUrl, true);
+                    xhr.responseType = 'blob';
+                    
+                    xhr.onprogress = function(event) {
+                        if (event.lengthComputable) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            updateProgress(percent);
+                        }
+                    };
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            const blob = xhr.response;
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = FILE_NAME;
+                            document.body.appendChild(a);
+                            a.click();
+                            URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            
+                            updateProgress(100);
+                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
+                        } else {
+                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
+                            updateProgress(0);
+                        }
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onerror = function() {
+                        showStatus('Ошибка сети. Проверьте подключение.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onabort = function() {
+                        showStatus('Загрузка отменена.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.send();
+                } catch (error) {
+                    showStatus('Ошибка: ' + error.message, false);
+                    resetDownloadUI();
+                    xhr = null;
+                }
+            }
         }
         
         // Обработчик кнопки скачивания
