@@ -1,1 +1,814 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pluggs Game Store</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        
+        body {
+            background: var(--tg-theme-bg-color, #0f0f0f);
+            color: var(--tg-theme-text-color, #ffffff);
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            color: var(--tg-theme-text-color, #ffffff);
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            color: var(--tg-theme-hint-color, #aaaaaa);
+            font-size: 14px;
+        }
+        
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+        
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 12px;
+            margin-right: 10px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .game-card {
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .game-card:active {
+            transform: scale(0.98);
+        }
+        
+        .game-image {
+            width: 100%;
+            height: 120px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .game-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .game-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            height: 50%;
+        }
+        
+        .game-info {
+            padding: 12px;
+        }
+        
+        .game-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--tg-theme-text-color, #ffffff);
+        }
+        
+        .game-description {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .game-details {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--tg-theme-bg-color, #0f0f0f);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .game-details.active {
+            display: block;
+        }
+        
+        .game-details-content {
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .game-details-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .game-details-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+        
+        .game-details-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .game-details-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .game-details-meta {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+        
+        .game-details-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .download-section {
+            margin-top: 25px;
+        }
+        
+        .progress-container {
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .progress-text {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+        
+        .progress-percent {
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #40a7e3);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: var(--tg-theme-section-bg-color, #333);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .download-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .download-btn:disabled {
+            background: var(--tg-theme-secondary-bg-color, #555);
+            cursor: not-allowed;
+        }
+        
+        .download-btn:not(:disabled):hover {
+            opacity: 0.9;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            color: var(--tg-theme-text-color, #ffffff);
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status-success {
+            background: rgba(52, 199, 89, 0.1);
+            color: #34c759;
+            display: block;
+        }
+        
+        .status-error {
+            background: rgba(255, 59, 48, 0.1);
+            color: #ff3b30;
+            display: block;
+        }
+        
+        .footer {
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .footer-section {
+            flex: 1;
+            padding: 0 10px;
+        }
+        
+        .footer-section h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--tg-theme-text-color, #ffffff);
+        }
+        
+        .footer-section p, .footer-section a {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+            margin-bottom: 5px;
+            text-decoration: none;
+        }
+        
+        .footer-section a {
+            color: #6a9eff;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--tg-theme-hint-color, #333333);
+        }
+        
+        .footer-bottom p {
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .search-bar {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 12px 15px;
+            padding-left: 40px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border: none;
+            border-radius: 12px;
+            color: var(--tg-theme-text-color, #ffffff);
+            font-size: 14px;
+        }
+        
+        .search-bar svg {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            fill: var(--tg-theme-hint-color, #aaaaaa);
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 750px;
+            }
+            
+            .games-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .game-image {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Pluggs Game Store</h1>
+            <p>Лучшая коллекция игр для всех платформ</p>
+        </div>
+        
+        <div class="search-bar">
+            <svg viewBox="0 0 24 24">
+                <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"/>
+            </svg>
+            <input type="text" placeholder="Поиск игр..." id="search-input">
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="all">Все игры</div>
+            <div class="tab" data-tab="popular">Популярные</div>
+            <div class="tab" data-tab="new">Новинки</div>
+            <div class="tab" data-tab="action">Экшен</div>
+            <div class="tab" data-tab="rpg">RPG</div>
+            <div class="tab" data-tab="strategy">Стратегии</div>
+        </div>
+        
+        <div class="tab-content active" id="all-tab">
+            <div class="games-grid"></div>
+        </div>
+        <div class="tab-content" id="popular-tab">
+            <div class="games-grid"></div>
+        </div>
+        <div class="tab-content" id="new-tab">
+            <div class="games-grid"></div>
+        </div>
+        <div class="tab-content" id="action-tab">
+            <div class="games-grid"></div>
+        </div>
+        <div class="tab-content" id="rpg-tab">
+            <div class="games-grid"></div>
+        </div>
+        <div class="tab-content" id="strategy-tab">
+            <div class="games-grid"></div>
+        </div>
+        
+        <!-- Детали игры CrazyMita -->
+        <div class="game-details" id="crazymita-details">
+            <button class="back-btn" id="back-btn">← Назад</button>
+            
+            <div class="game-details-content">
+                <div class="game-details-header">
+                    <div class="game-details-image">
+                        <img src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="CrazyMita">
+                    </div>
+                    <div>
+                        <div class="game-details-title">CrazyMita</div>
+                        <div class="game-details-meta">Версия: 1.2.5 • Размер: ~150 МБ</div>
+                    </div>
+                </div>
+                
+                <div class="game-details-description">
+                    <p>CrazyMita - это захватывающая экшен-игра с уникальным геймплеем и потрясающей графикой. Игра предлагает:</p>
+                    <ul>
+                        <li>Динамичные бои с разнообразными противниками</li>
+                        <li>Разветвленную систему прокачки персонажа</li>
+                        <li>Десятки уровней с уникальными боссами</li>
+                        <li>Режимы одиночной и многопользовательской игры</li>
+                        <li>Регулярные обновления с новым контентом</li>
+                    </ul>
+                </div>
+                
+                <div class="download-section">
+                    <div class="progress-container" id="progress-container">
+                        <div class="progress-info">
+                            <span class="progress-text">Статус: <span id="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent" id="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="download-btn" class="download-btn">Скачать CrazyMita</button>
+                    
+                    <div id="status-message" class="status-message"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>О нас</h3>
+                    <p>Pluggs - лучший бот для поиска и скачивания приваток. Мы предлагаем огромную коллекцию популярных приваток для всех платформ.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Наши контакты</h3>
+                    <p>Владелец бота: <a href="https://t.me/kurune" target="_blank">Плагги</a></p>
+                    <p>По разным вопросам: <a href="https://t.me/soukita" target="_blank">kitaru</a></p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2025 Pluggs. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        
+        // Элементы интерфейса
+        const downloadBtn = document.getElementById('download-btn');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const statusText = document.getElementById('status-text');
+        const statusMessage = document.getElementById('status-message');
+        const progressContainer = document.getElementById('progress-container');
+        const backBtn = document.getElementById('back-btn');
+        const gameDetails = document.getElementById('crazymita-details');
+        const searchInput = document.getElementById('search-input');
+        
+        // URL для скачивания
+        const DOWNLOAD_URL = 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip';
+        const FILE_NAME = 'CrazyMita.zip';
+        
+        // Переменные для отслеживания прогресса
+        let isDownloading = false;
+        let currentTab = 'all';
+        let xhr = null;
+        
+        // Данные игр
+        const games = [
+            {
+                id: 'crazymita',
+                title: 'CrazyMita',
+                description: 'Захватывающая игра в жанре экшен с уникальным геймплеем и графикой.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['popular', 'action']
+            },
+            {
+                id: 'neonrush',
+                title: 'Neon Rush',
+                description: 'Гонки в неоновом стиле с улучшениями и мощными автомобилями.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['popular', 'action']
+            },
+            {
+                id: 'spacewarriors',
+                title: 'Space Warriors',
+                description: 'Сражения в космосе с улучшенной системой боя и развития.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['new', 'action']
+            },
+            {
+                id: 'dragonquest',
+                title: 'Dragon Quest',
+                description: 'РПГ с открытым миром, драконами и захватывающим сюжетом.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['rpg']
+            },
+            {
+                id: 'zombiesurvival',
+                title: 'Zombie Survival',
+                description: 'Выживание в мире зомби с ограниченными ресурсами и командной игрой.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['new', 'action']
+            },
+            {
+                id: 'magicclash',
+                title: 'Magic Clash',
+                description: 'Стратегическая карточная игра с элементами магии и тактики.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['strategy']
+            }
+        ];
+        
+        // Функция для рендеринга игр в таб
+        function renderGames(tab) {
+            const grid = document.querySelector(`#${tab}-tab .games-grid`);
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            
+            const filteredGames = tab === 'all' ? games : games.filter(game => game.categories.includes(tab));
+            
+            filteredGames.forEach(game => {
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                card.dataset.game = game.id;
+                card.innerHTML = `
+                    <div class="game-image">
+                        <img src="${game.image}" alt="${game.title}">
+                        <div class="game-overlay"></div>
+                    </div>
+                    <div class="game-info">
+                        <div class="game-title">${game.title}</div>
+                        <div class="game-description">${game.description}</div>
+                    </div>
+                `;
+                card.addEventListener('click', handleGameClick);
+                grid.appendChild(card);
+            });
+        }
+        
+        // Обработчик клика по карточке игры
+        function handleGameClick(e) {
+            const gameId = e.currentTarget.dataset.game;
+            if (gameId === 'crazymita') {
+                gameDetails.classList.add('active');
+            } else {
+                tg.showPopup({
+                    title: 'Скоро будет доступно',
+                    message: 'Эта игра находится в разработке и скоро будет доступна для скачивания!',
+                    buttons: [{type: 'ok', text: 'Понятно'}]
+                });
+            }
+        }
+        
+        // Обработчики для вкладок
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                const content = document.getElementById(`${tab.dataset.tab}-tab`);
+                content.classList.add('active');
+                
+                currentTab = tab.dataset.tab;
+                renderGames(currentTab);
+                applySearch(); // Применить поиск при смене таба
+            });
+        });
+        
+        // Обработчик поиска
+        searchInput.addEventListener('input', applySearch);
+        
+        function applySearch() {
+            const term = searchInput.value.toLowerCase();
+            const grid = document.querySelector(`#${currentTab}-tab .games-grid`);
+            if (!grid) return;
+            
+            Array.from(grid.children).forEach(card => {
+                const title = card.querySelector('.game-title').textContent.toLowerCase();
+                card.style.display = title.includes(term) ? '' : 'none';
+            });
+        }
+        
+        // Обработчик кнопки "Назад"
+        backBtn.addEventListener('click', () => {
+            gameDetails.classList.remove('active');
+            if (xhr && isDownloading) {
+                xhr.abort();
+                resetDownloadUI();
+            }
+        });
+        
+        // Функция для обновления прогресса
+        function updateProgress(percent) {
+            progressFill.style.width = percent + '%';
+            progressPercent.textContent = percent + '%';
+            
+            if (percent === 0) {
+                statusText.textContent = 'Готов к загрузке';
+            } else if (percent < 100) {
+                statusText.textContent = 'Загрузка: ' + percent + '%';
+            } else {
+                statusText.textContent = 'Загрузка завершена!';
+            }
+        }
+        
+        // Функция для показа статуса
+        function showStatus(message, isSuccess) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${isSuccess ? 'status-success' : 'status-error'}`;
+            statusMessage.style.display = 'block';
+        }
+        
+        // Сброс UI загрузки
+        function resetDownloadUI() {
+            isDownloading = false;
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = 'Скачать CrazyMita';
+            progressContainer.style.display = 'none';
+            statusMessage.style.display = 'none';
+            updateProgress(0);
+        }
+        
+        // Функция для скачивания файла
+        function downloadFile() {
+            if (isDownloading) return;
+            
+            isDownloading = true;
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
+            progressContainer.style.display = 'block';
+            statusText.textContent = 'Запрос на скачивание...';
+            updateProgress(0);
+            
+            if (tg.isVersionAtLeast('8.0')) {
+                // Use native downloadFile method
+                tg.downloadFile({
+                    url: DOWNLOAD_URL,
+                    file_name: FILE_NAME
+                }, (accepted) => {
+                    if (accepted) {
+                        statusText.textContent = 'Скачивание начато...';
+                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
+                        // Note: No progress available with native download, so simulate or just show message
+                        updateProgress(100); // Fake completion since no progress
+                    } else {
+                        showStatus('Скачивание отменено.', false);
+                    }
+                    resetDownloadUI();
+                    downloadBtn.textContent = 'Скачать еще раз';
+                });
+            } else {
+                // Fallback to XMLHttpRequest
+                try {
+                    xhr = new XMLHttpRequest();
+                    xhr.open('GET', DOWNLOAD_URL, true);
+                    xhr.responseType = 'blob';
+                    
+                    xhr.onprogress = function(event) {
+                        if (event.lengthComputable) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            updateProgress(percent);
+                        }
+                    };
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            const blob = xhr.response;
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = FILE_NAME;
+                            document.body.appendChild(a);
+                            a.click();
+                            URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            
+                            updateProgress(100);
+                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
+                        } else {
+                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
+                            updateProgress(0);
+                        }
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onerror = function() {
+                        showStatus('Ошибка сети. Проверьте подключение.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onabort = function() {
+                        showStatus('Загрузка отменена.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.send();
+                } catch (error) {
+                    showStatus('Ошибка: ' + error.message, false);
+                    resetDownloadUI();
+                    xhr = null;
+                }
+            }
+        }
+        
+        // Обработчик кнопки скачивания
+        downloadBtn.addEventListener('click', downloadFile);
+        
+        // Инициализация при загрузке
+        tg.ready();
+        updateProgress(0);
+        
+        // Рендеринг начального таба
+        renderGames('all');
+        
+        // Слушатель события writeAccessRequested (если нужно, но в данном случае не используется)
+        tg.onEvent('writeAccessRequested', (result) => {
+            console.log('Write access requested:', result);
+        });
+        
+        // Для отладки события fileDownloadRequested
+        tg.onEvent('fileDownloadRequested', (data) => {
+            console.log('File download requested:', data);
+            if (data.status === 'downloading') {
+                showStatus('Скачивание начато!', true);
+            } else if (data.status === 'cancelled') {
+                showStatus('Скачивание отменено.', false);
+            }
+        });
+    </script>
+</body>
+</html>
