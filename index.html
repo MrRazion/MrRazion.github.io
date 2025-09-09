@@ -263,6 +263,26 @@
             opacity: 0.9;
         }
         
+        .cancel-btn {
+            display: none;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(45deg, #ff3b30, #ff9500);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        
+        .cancel-btn:not(:disabled):hover {
+            opacity: 0.9;
+        }
+        
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -488,6 +508,7 @@
                     </div>
                     
                     <button id="download-btn" class="download-btn">Скачать CrazyMita</button>
+                    <button id="cancel-btn" class="cancel-btn">Отменить</button>
                     
                     <div id="status-message" class="status-message"></div>
                 </div>
@@ -521,6 +542,7 @@
         
         // Элементы интерфейса
         const downloadBtn = document.getElementById('download-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
         const progressFill = document.getElementById('progress-fill');
         const progressPercent = document.getElementById('progress-percent');
         const statusText = document.getElementById('status-text');
@@ -691,7 +713,9 @@
         function resetDownloadUI() {
             isDownloading = false;
             downloadBtn.disabled = false;
-            downloadBtn.textContent = 'Скачать CrazyMita';
+            downloadBtn.innerHTML = 'Скачать CrazyMita';
+            downloadBtn.style.display = 'block';
+            cancelBtn.style.display = 'none';
             progressContainer.style.display = 'none';
             statusMessage.style.display = 'none';
             updateProgress(0);
@@ -703,90 +727,83 @@
             
             isDownloading = true;
             downloadBtn.disabled = true;
+            downloadBtn.style.display = 'none';
+            cancelBtn.style.display = 'block';
             downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
             progressContainer.style.display = 'block';
             statusText.textContent = 'Запрос на скачивание...';
             updateProgress(0);
             
-            if (tg.isVersionAtLeast('8.0')) {
-                // Use native downloadFile method
-                tg.downloadFile({
-                    url: DOWNLOAD_URL,
-                    file_name: FILE_NAME
-                }, (accepted) => {
-                    if (accepted) {
-                        statusText.textContent = 'Скачивание начато...';
-                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
-                        // Note: No progress available with native download, so simulate or just show message
-                        updateProgress(100); // Fake completion since no progress
+            // Always use XMLHttpRequest for better control and redownload capability
+            try {
+                xhr = new XMLHttpRequest();
+                xhr.open('GET', DOWNLOAD_URL + '?' + new Date().getTime(), true); // Append timestamp to URL to avoid caching issues
+                xhr.responseType = 'blob';
+                
+                xhr.onprogress = function(event) {
+                    if (event.lengthComputable) {
+                        const percent = Math.round((event.loaded / event.total) * 100);
+                        updateProgress(percent);
+                    }
+                };
+                
+                xhr.onload = function() {
+                    if (xhr.status === 200) {
+                        const blob = xhr.response;
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = FILE_NAME;
+                        document.body.appendChild(a);
+                        a.click();
+                        URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                        
+                        updateProgress(100);
+                        showStatus('Файл успешно скачан! Проверьте ваши загрузки. Вы можете скачать снова.', true);
                     } else {
-                        showStatus('Скачивание отменено.', false);
+                        showStatus('Ошибка загрузки: статус ' + xhr.status, false);
+                        updateProgress(0);
                     }
                     resetDownloadUI();
-                    downloadBtn.textContent = 'Скачать еще раз';
-                });
-            } else {
-                // Fallback to XMLHttpRequest
-                try {
-                    xhr = new XMLHttpRequest();
-                    xhr.open('GET', DOWNLOAD_URL, true);
-                    xhr.responseType = 'blob';
-                    
-                    xhr.onprogress = function(event) {
-                        if (event.lengthComputable) {
-                            const percent = Math.round((event.loaded / event.total) * 100);
-                            updateProgress(percent);
-                        }
-                    };
-                    
-                    xhr.onload = function() {
-                        if (xhr.status === 200) {
-                            const blob = xhr.response;
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = FILE_NAME;
-                            document.body.appendChild(a);
-                            a.click();
-                            URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-                            
-                            updateProgress(100);
-                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
-                        } else {
-                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
-                            updateProgress(0);
-                        }
-                        resetDownloadUI();
-                        xhr = null;
-                    };
-                    
-                    xhr.onerror = function() {
-                        showStatus('Ошибка сети. Проверьте подключение.', false);
-                        updateProgress(0);
-                        resetDownloadUI();
-                        xhr = null;
-                    };
-                    
-                    xhr.onabort = function() {
-                        showStatus('Загрузка отменена.', false);
-                        updateProgress(0);
-                        resetDownloadUI();
-                        xhr = null;
-                    };
-                    
-                    xhr.send();
-                } catch (error) {
-                    showStatus('Ошибка: ' + error.message, false);
+                    downloadBtn.innerHTML = 'Скачать еще раз';
+                    xhr = null;
+                };
+                
+                xhr.onerror = function() {
+                    showStatus('Ошибка сети. Проверьте подключение.', false);
+                    updateProgress(0);
                     resetDownloadUI();
                     xhr = null;
-                }
+                };
+                
+                xhr.onabort = function() {
+                    showStatus('Загрузка отменена.', false);
+                    updateProgress(0);
+                    resetDownloadUI();
+                    xhr = null;
+                };
+                
+                xhr.send();
+            } catch (error) {
+                showStatus('Ошибка: ' + error.message, false);
+                resetDownloadUI();
+                xhr = null;
             }
         }
         
-        // Обработчик кнопки скачивания
+        // Обработчик кнопки отмены
+        function cancelDownload() {
+            if (xhr && isDownloading) {
+                xhr.abort();
+            }
+            resetDownloadUI();
+        }
+        
+        // Обработчики кнопок
         downloadBtn.addEventListener('click', downloadFile);
+        cancelBtn.addEventListener('click', cancelDownload);
         
         // Инициализация при загрузке
         tg.ready();
