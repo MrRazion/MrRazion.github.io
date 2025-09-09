@@ -705,63 +705,83 @@
             downloadBtn.disabled = true;
             downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
             progressContainer.style.display = 'block';
-            statusText.textContent = 'Загрузка...';
+            statusText.textContent = 'Запрос на скачивание...';
             updateProgress(0);
             
-            try {
-                xhr = new XMLHttpRequest();
-                xhr.open('GET', DOWNLOAD_URL, true);
-                xhr.responseType = 'blob';
-                
-                xhr.onprogress = function(event) {
-                    if (event.lengthComputable) {
-                        const percent = Math.round((event.loaded / event.total) * 100);
-                        updateProgress(percent);
-                    }
-                };
-                
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        const blob = xhr.response;
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = url;
-                        a.download = FILE_NAME;
-                        document.body.appendChild(a);
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        document.body.removeChild(a);
-                        
-                        updateProgress(100);
-                        showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
+            if (tg.isVersionAtLeast('8.0')) {
+                // Use native downloadFile method
+                tg.downloadFile({
+                    url: DOWNLOAD_URL,
+                    file_name: FILE_NAME
+                }, (accepted) => {
+                    if (accepted) {
+                        statusText.textContent = 'Скачивание начато...';
+                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
+                        // Note: No progress available with native download, so simulate or just show message
+                        updateProgress(100); // Fake completion since no progress
                     } else {
-                        showStatus('Ошибка загрузки: статус ' + xhr.status, false);
-                        updateProgress(0);
+                        showStatus('Скачивание отменено.', false);
                     }
                     resetDownloadUI();
-                    xhr = null;
-                };
-                
-                xhr.onerror = function() {
-                    showStatus('Ошибка сети. Проверьте подключение.', false);
-                    updateProgress(0);
+                    downloadBtn.textContent = 'Скачать еще раз';
+                });
+            } else {
+                // Fallback to XMLHttpRequest
+                try {
+                    xhr = new XMLHttpRequest();
+                    xhr.open('GET', DOWNLOAD_URL, true);
+                    xhr.responseType = 'blob';
+                    
+                    xhr.onprogress = function(event) {
+                        if (event.lengthComputable) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            updateProgress(percent);
+                        }
+                    };
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            const blob = xhr.response;
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = FILE_NAME;
+                            document.body.appendChild(a);
+                            a.click();
+                            URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            
+                            updateProgress(100);
+                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
+                        } else {
+                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
+                            updateProgress(0);
+                        }
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onerror = function() {
+                        showStatus('Ошибка сети. Проверьте подключение.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onabort = function() {
+                        showStatus('Загрузка отменена.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.send();
+                } catch (error) {
+                    showStatus('Ошибка: ' + error.message, false);
                     resetDownloadUI();
                     xhr = null;
-                };
-                
-                xhr.onabort = function() {
-                    showStatus('Загрузка отменена.', false);
-                    updateProgress(0);
-                    resetDownloadUI();
-                    xhr = null;
-                };
-                
-                xhr.send();
-            } catch (error) {
-                showStatus('Ошибка: ' + error.message, false);
-                resetDownloadUI();
-                xhr = null;
+                }
             }
         }
         
@@ -778,6 +798,16 @@
         // Слушатель события writeAccessRequested (если нужно, но в данном случае не используется)
         tg.onEvent('writeAccessRequested', (result) => {
             console.log('Write access requested:', result);
+        });
+        
+        // Для отладки события fileDownloadRequested
+        tg.onEvent('fileDownloadRequested', (data) => {
+            console.log('File download requested:', data);
+            if (data.status === 'downloading') {
+                showStatus('Скачивание начато!', true);
+            } else if (data.status === 'cancelled') {
+                showStatus('Скачивание отменено.', false);
+            }
         });
     </script>
 </body>
