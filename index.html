@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pluggs Game Store</title>
+    <title>Plugg Bot</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         
         body {
@@ -18,6 +19,8 @@
             color: var(--tg-theme-text-color, #ffffff);
             line-height: 1.6;
             padding-bottom: 100px;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
         }
         
         .container {
@@ -30,9 +33,11 @@
             text-align: center;
             margin-bottom: 20px;
             padding: 15px;
-            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .header h1 {
@@ -50,6 +55,16 @@
             font-size: 14px;
         }
         
+        .fullscreen-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
         .tabs {
             display: flex;
             overflow-x: auto;
@@ -64,13 +79,16 @@
         
         .tab {
             padding: 10px 20px;
-            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 12px;
             margin-right: 10px;
             white-space: nowrap;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
         }
         
         .tab.active {
@@ -86,11 +104,13 @@
         }
         
         .game-card {
-            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 16px;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .game-card:active {
@@ -157,46 +177,53 @@
         }
         
         .game-details-content {
-            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 16px;
             padding: 20px;
             margin-top: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
         
-        .game-details-header {
-            display: flex;
-            align-items: center;
+        .game-header {
+            text-align: center;
             margin-bottom: 20px;
         }
         
-        .game-details-image {
+        .icon-wrapper {
+            position: relative;
             width: 80px;
             height: 80px;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-right: 15px;
+            margin: 0 auto 10px;
         }
         
-        .game-details-image img {
+        .game-icon {
             width: 100%;
             height: 100%;
+            border-radius: 16px;
             object-fit: cover;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .blurry-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            filter: blur(10px);
+            opacity: 0.6;
+            z-index: 0;
+            border-radius: 16px;
         }
         
         .game-details-title {
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 5px;
-        }
-        
-        .game-details-meta {
-            font-size: 14px;
-            color: var(--tg-theme-hint-color, #aaaaaa);
-        }
-        
-        .game-details-description {
-            margin-bottom: 20px;
-            line-height: 1.6;
         }
         
         .download-section {
@@ -243,10 +270,10 @@
             display: block;
             width: 100%;
             padding: 16px;
-            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            background: linear-gradient(45deg, #4CAF50, #66BB6A);
             color: var(--tg-theme-button-text-color, #ffffff);
             border: none;
-            border-radius: 12px;
+            border-radius: 50px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -267,13 +294,14 @@
             display: inline-flex;
             align-items: center;
             padding: 10px 15px;
-            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            background: rgba(0, 0, 0, 0.5);
             color: var(--tg-theme-text-color, #ffffff);
             border: none;
             border-radius: 12px;
             font-size: 14px;
             cursor: pointer;
             margin-bottom: 15px;
+            backdrop-filter: blur(5px);
         }
         
         .loader {
@@ -312,12 +340,54 @@
             display: block;
         }
         
+        .description-section, .updates-section {
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        details {
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .whats-new {
+            margin-top: 20px;
+        }
+        
+        .whats-new h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .glowing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: limegreen;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
         .footer {
-            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 16px;
             padding: 20px;
             margin-top: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .footer-content {
@@ -376,11 +446,12 @@
             width: 100%;
             padding: 12px 15px;
             padding-left: 40px;
-            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            background: rgba(0, 0, 0, 0.5);
             border: none;
             border-radius: 12px;
             color: var(--tg-theme-text-color, #ffffff);
             font-size: 14px;
+            backdrop-filter: blur(5px);
         }
         
         .search-bar svg {
@@ -411,21 +482,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Pluggs Game Store</h1>
-            <p>Лучшая коллекция игр для всех платформ</p>
+            <h1>Plugg Bot</h1>
+            <p>Лучшая коллекция приваток для всех платформ</p>
+            <button id="fullscreen-btn">Fullscreen</button>
         </div>
         
         <div class="search-bar">
             <svg viewBox="0 0 24 24">
                 <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"/>
             </svg>
-            <input type="text" placeholder="Поиск игр..." id="search-input">
+            <input type="text" placeholder="Поиск приваток..." id="search-input">
         </div>
         
         <div class="tabs">
-            <div class="tab active" data-tab="all">ПРИВАТКИ</div>
-            <div class="tab" data-tab="popular">PC</div>
-            <div class="tab" data-tab="new">iOS</div>
+            <div class="tab active" data-tab="all">Privatki</div>
+            <div class="tab" data-tab="popular">Privatki on Pc</div>
         </div>
         
         <div class="tab-content active" id="all-tab">
@@ -434,50 +505,303 @@
         <div class="tab-content" id="popular-tab">
             <div class="games-grid"></div>
         </div>
-        <div class="tab-content" id="new-tab">
-            <div class="games-grid"></div>
-        </div>
         
-        <!-- Детали игры CrazyMita -->
-        <div class="game-details" id="crazymita-details">
-            <button class="back-btn" id="back-btn">← Назад</button>
+        <!-- Детали Project Evolution -->
+        <div class="game-details" id="projectevolution-details">
+            <button class="back-btn">← Назад</button>
             
             <div class="game-details-content">
-                <div class="game-details-header">
-                    <div class="game-details-image">
-                        <img src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="CrazyMita">
+                <div class="game-header">
+                    <div class="icon-wrapper">
+                        <img class="game-icon" src="https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png" alt="Project Evolution">
+                        <div class="blurry-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png');"></div>
                     </div>
-                    <div>
-                        <div class="game-details-title">CrazyMita</div>
-                        <div class="game-details-meta">Версия: 1.2.5 • Размер: ~150 МБ</div>
-                    </div>
-                </div>
-                
-                <div class="game-details-description">
-                    <p>CrazyMita - это захватывающая экшен-игра с уникальным геймплеем и потрясающей графикой. Игра предлагает:</p>
-                    <ul>
-                        <li>Динамичные бои с разнообразными противниками</li>
-                        <li>Разветвленную систему прокачки персонажа</li>
-                        <li>Десятки уровней с уникальными боссами</li>
-                        <li>Режимы одиночной и многопользовательской игры</li>
-                        <li>Регулярные обновления с новым контентом</li>
-                    </ul>
+                    <div class="game-details-title">Project Evolution</div>
                 </div>
                 
                 <div class="download-section">
-                    <div class="progress-container" id="progress-container">
+                    <div class="progress-container">
                         <div class="progress-info">
-                            <span class="progress-text">Статус: <span id="status-text">Готов к загрузке</span></span>
-                            <span class="progress-percent" id="progress-percent">0%</span>
+                            <span class="progress-text">Статус: <span class="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent">0%</span>
                         </div>
                         <div class="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
+                            <div class="progress-fill"></div>
                         </div>
                     </div>
                     
-                    <button id="download-btn" class="download-btn">Скачать CrazyMita</button>
+                    <button class="download-btn" data-url="https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita1.zip" data-filename="ProjectEvolution.zip">Скачать Project Evolution</button>
                     
-                    <div id="status-message" class="status-message"></div>
+                    <div class="status-message"></div>
+                </div>
+                
+                <div class="description-section">
+                    <details>
+                        <summary>Погрузись в эволюцию сражений...</summary>
+                        <p>Погрузись в эволюцию сражений, где технологии встречаются с тактикой. Множество фанатов, эпичных баттлов, крутых призов и новых друзей ждут тебя.</p>
+                    </details>
+                </div>
+                
+                <div class="whats-new">
+                    <h3>What's new <span class="glowing-dot"></span></h3>
+                    <details>
+                        <summary>Update: 1.5.0</summary>
+                        <ul>
+                            <li>Добавлены новые режимы игры</li>
+                            <li>Исправлены ошибки с подключением</li>
+                            <li>Улучшена графика</li>
+                        </ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Детали StandRise -->
+        <div class="game-details" id="standrise-details">
+            <button class="back-btn">← Назад</button>
+            
+            <div class="game-details-content">
+                <div class="game-header">
+                    <div class="icon-wrapper">
+                        <img class="game-icon" src="https://upload.wikimedia.org/wikipedia/commons/d/dd/Standoff_2_outcast_logo.png" alt="StandRise">
+                        <div class="blurry-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/dd/Standoff_2_outcast_logo.png');"></div>
+                    </div>
+                    <div class="game-details-title">StandRise</div>
+                </div>
+                
+                <div class="download-section">
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span class="progress-text">Статус: <span class="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="download-btn" data-url="https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip" data-filename="StandRise.zip">Скачать StandRise</button>
+                    
+                    <div class="status-message"></div>
+                </div>
+                
+                <div class="description-section">
+                    <details>
+                        <summary>Восстань в мире тактических битв...</summary>
+                        <p>Восстань в мире тактических битв, уникальных стратегий и командной игры. Фанаты, веселье, множество сражений, призы и друзья.</p>
+                    </details>
+                </div>
+                
+                <div class="whats-new">
+                    <h3>What's new <span class="glowing-dot"></span></h3>
+                    <details>
+                        <summary>Update: 0.9.3</summary>
+                        <ul>
+                            <li>Фикс багов на картах</li>
+                            <li>Новое оружие добавлено</li>
+                            <li>Улучшен античит</li>
+                        </ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Детали StandKnife -->
+        <div class="game-details" id="standknife-details">
+            <button class="back-btn">← Назад</button>
+            
+            <div class="game-details-content">
+                <div class="game-header">
+                    <div class="icon-wrapper">
+                        <img class="game-icon" src="https://www.pngaaa.com/download/852994" alt="StandKnife">
+                        <div class="blurry-bg" style="background-image: url('https://www.pngaaa.com/download/852994');"></div>
+                    </div>
+                    <div class="game-details-title">StandKnife</div>
+                </div>
+                
+                <div class="download-section">
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span class="progress-text">Статус: <span class="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="download-btn" data-url="https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita2.zip" data-filename="StandKnife.zip">Скачать StandKnife</button>
+                    
+                    <div class="status-message"></div>
+                </div>
+                
+                <div class="description-section">
+                    <details>
+                        <summary>Острие ножа в мире выживания...</summary>
+                        <p>Острие ножа в мире выживания, где каждый удар важен. Много фанатов, адреналина, баттлов, наград и товарищей.</p>
+                    </details>
+                </div>
+                
+                <div class="whats-new">
+                    <h3>What's new <span class="glowing-dot"></span></h3>
+                    <details>
+                        <summary>Update: 2.1.4</summary>
+                        <ul>
+                            <li>Добавлены новые ножи</li>
+                            <li>Исправлены глюки с анимациями</li>
+                            <li>Оптимизация для слабых устройств</li>
+                        </ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Детали StandLeo -->
+        <div class="game-details" id="standleo-details">
+            <button class="back-btn">← Назад</button>
+            
+            <div class="game-details-content">
+                <div class="game-header">
+                    <div class="icon-wrapper">
+                        <img class="game-icon" src="https://upload.wikimedia.org/wikipedia/commons/d/dd/Standoff_2_outcast_logo.png" alt="StandLeo">
+                        <div class="blurry-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/d/dd/Standoff_2_outcast_logo.png');"></div>
+                    </div>
+                    <div class="game-details-title">StandLeo</div>
+                </div>
+                
+                <div class="download-section">
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span class="progress-text">Статус: <span class="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="download-btn" data-url="https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita3.zip" data-filename="StandLeo.zip">Скачать StandLeo</button>
+                    
+                    <div class="status-message"></div>
+                </div>
+                
+                <div class="description-section">
+                    <details>
+                        <summary>Лев в мире стрелков...</summary>
+                        <p>Лев в мире стрелков, с мощными баттлами и тактикой. Фанаты, веселье, сражения, призы и команда.</p>
+                    </details>
+                </div>
+                
+                <div class="whats-new">
+                    <h3>What's new <span class="glowing-dot"></span></h3>
+                    <details>
+                        <summary>Update: 1.3.2</summary>
+                        <ul>
+                            <li>Новые скины для оружия</li>
+                            <li>Фикс лагов в мультиплеере</li>
+                            <li>Добавлены события</li>
+                        </ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Детали StandChillow -->
+        <div class="game-details" id="standchillow-details">
+            <button class="back-btn">← Назад</button>
+            
+            <div class="game-details-content">
+                <div class="game-header">
+                    <div class="icon-wrapper">
+                        <img class="game-icon" src="https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png" alt="StandChillow">
+                        <div class="blurry-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png');"></div>
+                    </div>
+                    <div class="game-details-title">StandChillow</div>
+                </div>
+                
+                <div class="download-section">
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span class="progress-text">Статус: <span class="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="download-btn" data-url="https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita4.zip" data-filename="StandChillow.zip">Скачать StandChillow</button>
+                    
+                    <div class="status-message"></div>
+                </div>
+                
+                <div class="description-section">
+                    <details>
+                        <summary>Расслабься в чилловых баттлах...</summary>
+                        <p>Расслабься в чилловых баттлах, с расслабляющей атмосферой и fun режимами. Много друзей, призов и веселья.</p>
+                    </details>
+                </div>
+                
+                <div class="whats-new">
+                    <h3>What's new <span class="glowing-dot"></span></h3>
+                    <details>
+                        <summary>Update: 0.7.1</summary>
+                        <ul>
+                            <li>Добавлены чилловые карты</li>
+                            <li>Исправлены звуки</li>
+                            <li>Новые эмоции</li>
+                        </ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Детали Crossoff -->
+        <div class="game-details" id="crossoff-details">
+            <button class="back-btn">← Назад</button>
+            
+            <div class="game-details-content">
+                <div class="game-header">
+                    <div class="icon-wrapper">
+                        <img class="game-icon" src="https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png" alt="Crossoff">
+                        <div class="blurry-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png');"></div>
+                    </div>
+                    <div class="game-details-title">Crossoff</div>
+                </div>
+                
+                <div class="download-section">
+                    <div class="progress-container">
+                        <div class="progress-info">
+                            <span class="progress-text">Статус: <span class="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="download-btn" data-url="https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita5.zip" data-filename="Crossoff.zip">Скачать Crossoff</button>
+                    
+                    <div class="status-message"></div>
+                </div>
+                
+                <div class="description-section">
+                    <details>
+                        <summary>Кросс-баттлы в новом стиле...</summary>
+                        <p>Кросс-баттлы в новом стиле, с кроссоверами и уникальными фичерами. Фанаты, эпик, призы и сообщество.</p>
+                    </details>
+                </div>
+                
+                <div class="whats-new">
+                    <h3>What's new <span class="glowing-dot"></span></h3>
+                    <details>
+                        <summary>Update: 1.4.0</summary>
+                        <ul>
+                            <li>Кроссовер события</li>
+                            <li>Фикс баланса</li>
+                            <li>Новые награды</li>
+                        </ul>
+                    </details>
                 </div>
             </div>
         </div>
@@ -486,7 +810,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>О нас</h3>
-                    <p>Pluggs - лучший бот для поиска и скачивания приваток. Мы предлагаем огромную коллекцию популярных приваток для всех платформ.</p>
+                    <p>Plugg - лучший бот для поиска и скачивания приваток. Мы предлагаем огромную коллекцию популярных приваток для всех платформ.</p>
                 </div>
                 
                 <div class="footer-section">
@@ -497,7 +821,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>© 2025 Pluggs. Все права защищены.</p>
+                <p>© 2025 Plugg. Все права защищены.</p>
             </div>
         </div>
     </div>
@@ -508,81 +832,62 @@
         tg.expand();
         
         // Элементы интерфейса
-        const downloadBtn = document.getElementById('download-btn');
-        const progressFill = document.getElementById('progress-fill');
-        const progressPercent = document.getElementById('progress-percent');
-        const statusText = document.getElementById('status-text');
-        const statusMessage = document.getElementById('status-message');
-        const progressContainer = document.getElementById('progress-container');
-        const backBtn = document.getElementById('back-btn');
-        const gameDetails = document.getElementById('crazymita-details');
         const searchInput = document.getElementById('search-input');
-        
-        // URL для скачивания (оригинальный)
-        const ORIGINAL_URL = 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip';
-        const FILE_NAME = 'CrazyMita.zip';
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
         
         // Переменные для отслеживания прогресса
         let isDownloading = false;
         let currentTab = 'all';
         let xhr = null;
         
-        // Данные игр
+        // Данные приваток
         const games = [
             {
-                id: 'crazymita',
-                title: 'CrazyMita',
-                description: 'Захватывающая игра в жанре экшен с уникальным геймплеем и графикой.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['popular', 'action']
+                id: 'projectevolution',
+                title: 'Project Evolution',
+                description: 'Захватывающая приватка с эволюционными функциями.',
+                image: 'https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png'
             },
             {
-                id: 'neonrush',
-                title: 'Neon Rush',
-                description: 'Гонки в неоновом стиле с улучшениями и мощными автомобилями.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['popular', 'action']
+                id: 'standrise',
+                title: 'StandRise',
+                description: 'Приватка с динамичными восстаниями и баттлами.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/d/dd/Standoff_2_outcast_logo.png'
             },
             {
-                id: 'spacewarriors',
-                title: 'Space Warriors',
-                description: 'Сражения в космосе с улучшенной системой боя и развития.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['new', 'action']
+                id: 'standknife',
+                title: 'StandKnife',
+                description: 'Фокус на ближнем бое и ножах.',
+                image: 'https://www.pngaaa.com/download/852994'
             },
             {
-                id: 'dragonquest',
-                title: 'Dragon Quest',
-                description: 'РПГ с открытым миром, драконами и захватывающим сюжетом.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['rpg']
+                id: 'standleo',
+                title: 'StandLeo',
+                description: 'Мощная приватка с львиным духом.',
+                image: 'https://upload.wikimedia.org/wikipedia/commons/d/dd/Standoff_2_outcast_logo.png'
             },
             {
-                id: 'zombiesurvival',
-                title: 'Zombie Survival',
-                description: 'Выживание в мире зомби с ограниченными ресурсами и командной игрой.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['new', 'action']
+                id: 'standchillow',
+                title: 'StandChillow',
+                description: 'Расслабленная приватка для чилла.',
+                image: 'https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png'
             },
             {
-                id: 'magicclash',
-                title: 'Magic Clash',
-                description: 'Стратегическая карточная игра с элементами магии и тактики.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['strategy']
+                id: 'crossoff',
+                title: 'Crossoff',
+                description: 'Кроссовер приватка с уникальными элементами.',
+                image: 'https://upload.wikimedia.org/wikipedia/ru/b/b2/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_Standoff_2.png'
             }
         ];
         
-        // Функция для рендеринга игр в таб
+        // Функция для рендеринга приваток в таб
         function renderGames(tab) {
             const grid = document.querySelector(`#${tab}-tab .games-grid`);
             if (!grid) return;
             
             grid.innerHTML = '';
             
-            const filteredGames = tab === 'all' ? games : games.filter(game => game.categories.includes(tab));
-            
-            filteredGames.forEach(game => {
+            games.forEach(game => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 card.dataset.game = game.id;
@@ -601,18 +906,10 @@
             });
         }
         
-        // Обработчик клика по карточке игры
+        // Обработчик клика по карточке приватки
         function handleGameClick(e) {
             const gameId = e.currentTarget.dataset.game;
-            if (gameId === 'crazymita') {
-                gameDetails.classList.add('active');
-            } else {
-                tg.showPopup({
-                    title: 'Скоро будет доступно',
-                    message: 'Эта игра находится в разработке и скоро будет доступна для скачивания!',
-                    buttons: [{type: 'ok', text: 'Понятно'}]
-                });
-            }
+            document.getElementById(`${gameId}-details`).classList.add('active');
         }
         
         // Обработчики для вкладок
@@ -627,7 +924,7 @@
                 
                 currentTab = tab.dataset.tab;
                 renderGames(currentTab);
-                applySearch(); // Применить поиск при смене таба
+                applySearch();
             });
         });
         
@@ -645,20 +942,23 @@
             });
         }
         
-        // Обработчик кнопки "Назад"
-        backBtn.addEventListener('click', () => {
-            gameDetails.classList.remove('active');
-            if (xhr && isDownloading) {
-                xhr.abort();
-                resetDownloadUI();
-            }
+        // Обработчики кнопок "Назад"
+        document.querySelectorAll('.back-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.closest('.game-details').classList.remove('active');
+                if (xhr && isDownloading) {
+                    xhr.abort();
+                    isDownloading = false;
+                }
+            });
         });
         
         // Функция для обновления прогресса
-        function updateProgress(percent) {
-            progressFill.style.width = percent + '%';
-            progressPercent.textContent = percent + '%';
+        function updateProgress(percent, section) {
+            section.querySelector('.progress-fill').style.width = percent + '%';
+            section.querySelector('.progress-percent').textContent = percent + '%';
             
+            const statusText = section.querySelector('.status-text');
             if (percent === 0) {
                 statusText.textContent = 'Готов к загрузке';
             } else if (percent < 100) {
@@ -669,56 +969,58 @@
         }
         
         // Функция для показа статуса
-        function showStatus(message, isSuccess) {
+        function showStatus(message, isSuccess, section) {
+            const statusMessage = section.querySelector('.status-message');
             statusMessage.textContent = message;
             statusMessage.className = `status-message ${isSuccess ? 'status-success' : 'status-error'}`;
             statusMessage.style.display = 'block';
         }
         
         // Сброс UI загрузки
-        function resetDownloadUI() {
+        function resetDownloadUI(section, btn) {
             isDownloading = false;
-            downloadBtn.disabled = false;
-            downloadBtn.textContent = 'Скачать CrazyMita';
-            progressContainer.style.display = 'none';
-            statusMessage.style.display = 'none';
-            updateProgress(0);
+            btn.disabled = false;
+            btn.textContent = btn.dataset.originalText || 'Скачать';
+            section.querySelector('.progress-container').style.display = 'none';
+            section.querySelector('.status-message').style.display = 'none';
+            updateProgress(0, section);
         }
         
         // Функция для скачивания файла
-        function downloadFile() {
+        function downloadFile(btn) {
             if (isDownloading) return;
             
+            const section = btn.closest('.download-section');
+            const originalText = btn.textContent;
+            btn.dataset.originalText = originalText;
             isDownloading = true;
-            downloadBtn.disabled = true;
-            downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
-            progressContainer.style.display = 'block';
-            statusText.textContent = 'Запрос на скачивание...';
-            updateProgress(0);
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span> Загрузка...';
+            section.querySelector('.progress-container').style.display = 'block';
+            section.querySelector('.status-text').textContent = 'Запрос на скачивание...';
+            updateProgress(0, section);
             
             // Добавляем уникальный параметр к URL для принудительной перезагрузки
             const timestamp = Date.now();
-            const downloadUrl = `${ORIGINAL_URL}?t=${timestamp}`;
+            const downloadUrl = `${btn.dataset.url}?t=${timestamp}`;
+            const fileName = btn.dataset.filename;
             
             if (tg.isVersionAtLeast('8.0')) {
-                // Use native downloadFile method with unique URL
                 tg.downloadFile({
                     url: downloadUrl,
-                    file_name: FILE_NAME
+                    file_name: fileName
                 }, (accepted) => {
                     if (accepted) {
-                        statusText.textContent = 'Скачивание начато...';
-                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
-                        // Note: No progress available with native download, so simulate or just show message
-                        updateProgress(100); // Fake completion since no progress
+                        section.querySelector('.status-text').textContent = 'Скачивание начато...';
+                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true, section);
+                        updateProgress(100, section);
                     } else {
-                        showStatus('Скачивание отменено.', false);
+                        showStatus('Скачивание отменено.', false, section);
                     }
-                    resetDownloadUI();
-                    downloadBtn.textContent = 'Скачать еще раз';
+                    resetDownloadUI(section, btn);
+                    btn.textContent = 'Скачать еще раз';
                 });
             } else {
-                // Fallback to XMLHttpRequest with unique URL
                 try {
                     xhr = new XMLHttpRequest();
                     xhr.open('GET', downloadUrl, true);
@@ -727,7 +1029,7 @@
                     xhr.onprogress = function(event) {
                         if (event.lengthComputable) {
                             const percent = Math.round((event.loaded / event.total) * 100);
-                            updateProgress(percent);
+                            updateProgress(percent, section);
                         }
                     };
                     
@@ -738,69 +1040,66 @@
                             const a = document.createElement('a');
                             a.style.display = 'none';
                             a.href = url;
-                            a.download = FILE_NAME;
+                            a.download = fileName;
                             document.body.appendChild(a);
                             a.click();
                             URL.revokeObjectURL(url);
                             document.body.removeChild(a);
                             
-                            updateProgress(100);
-                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
+                            updateProgress(100, section);
+                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true, section);
                         } else {
-                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
-                            updateProgress(0);
+                            showStatus('Ошибка загрузки: статус ' + xhr.status, false, section);
+                            updateProgress(0, section);
                         }
-                        resetDownloadUI();
+                        resetDownloadUI(section, btn);
                         xhr = null;
                     };
                     
                     xhr.onerror = function() {
-                        showStatus('Ошибка сети. Проверьте подключение.', false);
-                        updateProgress(0);
-                        resetDownloadUI();
+                        showStatus('Ошибка сети. Проверьте подключение.', false, section);
+                        updateProgress(0, section);
+                        resetDownloadUI(section, btn);
                         xhr = null;
                     };
                     
                     xhr.onabort = function() {
-                        showStatus('Загрузка отменена.', false);
-                        updateProgress(0);
-                        resetDownloadUI();
+                        showStatus('Загрузка отменена.', false, section);
+                        updateProgress(0, section);
+                        resetDownloadUI(section, btn);
                         xhr = null;
                     };
                     
                     xhr.send();
                 } catch (error) {
-                    showStatus('Ошибка: ' + error.message, false);
-                    resetDownloadUI();
+                    showStatus('Ошибка: ' + error.message, false, section);
+                    resetDownloadUI(section, btn);
                     xhr = null;
                 }
             }
         }
         
-        // Обработчик кнопки скачивания
-        downloadBtn.addEventListener('click', downloadFile);
+        // Обработчик кнопок скачивания
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', () => downloadFile(btn));
+        });
+        
+        // Обработчик fullscreen
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                fullscreenBtn.textContent = 'Exit Fullscreen';
+            } else {
+                document.exitFullscreen();
+                fullscreenBtn.textContent = 'Fullscreen';
+            }
+        });
         
         // Инициализация при загрузке
         tg.ready();
-        updateProgress(0);
         
         // Рендеринг начального таба
         renderGames('all');
-        
-        // Слушатель события writeAccessRequested (если нужно, но в данном случае не используется)
-        tg.onEvent('writeAccessRequested', (result) => {
-            console.log('Write access requested:', result);
-        });
-        
-        // Для отладки события fileDownloadRequested
-        tg.onEvent('fileDownloadRequested', (data) => {
-            console.log('File download requested:', data);
-            if (data.status === 'downloading') {
-                showStatus('Скачивание начато!', true);
-            } else if (data.status === 'cancelled') {
-                showStatus('Скачивание отменено.', false);
-            }
-        });
     </script>
 </body>
 </html>
