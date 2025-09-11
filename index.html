@@ -3,29 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Plugg Bot</title>
+    <title>Plugg BOT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --glass-bg: rgba(0, 0, 0, 0.6);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-            --blur-amount: 12px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         
         body {
-            background: #000000;
-            color: #ffffff;
+            background: var(--tg-theme-bg-color, #0f0f0f);
+            color: var(--tg-theme-text-color, #ffffff);
             line-height: 1.6;
-            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
+            padding-bottom: 100px;
         }
         
         .container {
@@ -38,16 +30,15 @@
             text-align: center;
             margin-bottom: 20px;
             padding: 15px;
-            background: var(--glass-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            border: var(--glass-border);
-            backdrop-filter: blur(var(--blur-amount));
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         
         .header h1 {
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 5px;
+            color: var(--tg-theme-text-color, #ffffff);
             background: linear-gradient(45deg, #6a11cb, #2575fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -55,7 +46,7 @@
         }
         
         .header p {
-            color: #aaaaaa;
+            color: var(--tg-theme-hint-color, #aaaaaa);
             font-size: 14px;
         }
         
@@ -73,16 +64,13 @@
         
         .tab {
             padding: 10px 20px;
-            background: var(--glass-bg);
-            border-radius: 20px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 12px;
             margin-right: 10px;
             white-space: nowrap;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
-            box-shadow: var(--shadow);
-            border: var(--glass-border);
-            backdrop-filter: blur(var(--blur-amount));
         }
         
         .tab.active {
@@ -98,13 +86,11 @@
         }
         
         .game-card {
-            background: var(--glass-bg);
-            border-radius: 20px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: var(--shadow);
-            border: var(--glass-border);
-            backdrop-filter: blur(var(--blur-amount));
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         
         .game-card:active {
@@ -113,7 +99,7 @@
         
         .game-image {
             width: 100%;
-            height: 140px;
+            height: 120px;
             overflow: hidden;
             position: relative;
         }
@@ -130,23 +116,27 @@
             left: 0;
             right: 0;
             background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            height: 60%;
+            height: 50%;
         }
         
         .game-info {
             padding: 12px;
-            text-align: center;
         }
         
         .game-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 600;
             margin-bottom: 5px;
+            color: var(--tg-theme-text-color, #ffffff);
         }
         
         .game-description {
             font-size: 12px;
-            color: #aaaaaa;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         
         .game-details {
@@ -156,9 +146,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
+            background: var(--tg-theme-bg-color, #0f0f0f);
             z-index: 1000;
-            padding: env(safe-area-inset-top) 15px env(safe-area-inset-bottom) 15px;
+            padding: 20px;
             overflow-y: auto;
         }
         
@@ -167,55 +157,46 @@
         }
         
         .game-details-content {
-            background: var(--glass-bg);
-            border-radius: 20px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
             padding: 20px;
-            max-width: 100%;
-            margin: 0;
-            box-shadow: var(--shadow);
-            border: var(--glass-border);
-            backdrop-filter: blur(var(--blur-amount));
+            margin-top: 20px;
         }
         
-        .game-header {
-            text-align: center;
-            margin-bottom: 25px;
+        .game-details-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
         }
         
-        .icon-wrapper {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 15px;
+        .game-details-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-right: 15px;
         }
         
-        .game-icon {
+        .game-details-image img {
             width: 100%;
             height: 100%;
-            border-radius: 20px;
             object-fit: cover;
-            z-index: 1;
-            position: relative;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-        }
-        
-        .blurry-bg {
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            width: 120px;
-            height: 120px;
-            background-size: cover;
-            filter: blur(15px);
-            opacity: 0.7;
-            z-index: 0;
-            border-radius: 20px;
         }
         
         .game-details-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .game-details-meta {
+            font-size: 14px;
+            color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+        
+        .game-details-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
         }
         
         .download-section {
@@ -231,26 +212,29 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
+        }
+        
+        .progress-text {
             font-size: 14px;
-            color: #aaaaaa;
+            color: var(--tg-theme-hint-color, #aaaaaa);
         }
         
         .progress-percent {
             font-weight: bold;
-            color: #40a7e3;
+            color: var(--tg-theme-button-color, #40a7e3);
         }
         
         .progress-bar {
-            height: 6px;
-            background: #333;
-            border-radius: 3px;
+            height: 8px;
+            background: var(--tg-theme-section-bg-color, #333);
+            border-radius: 4px;
             overflow: hidden;
         }
         
         .progress-fill {
             height: 100%;
             background: linear-gradient(45deg, #6a11cb, #2575fc);
-            border-radius: 3px;
+            border-radius: 4px;
             width: 0%;
             transition: width 0.3s ease;
         }
@@ -258,46 +242,38 @@
         .download-btn {
             display: block;
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(45deg, #4CAF50, #66BB6A);
-            color: #ffffff;
+            padding: 16px;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: var(--tg-theme-button-text-color, #ffffff);
             border: none;
-            border-radius: 30px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             text-align: center;
             transition: all 0.2s;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
         
         .download-btn:disabled {
-            background: #555;
+            background: var(--tg-theme-secondary-bg-color, #555);
             cursor: not-allowed;
         }
         
         .download-btn:not(:disabled):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+            opacity: 0.9;
         }
         
         .back-btn {
             display: inline-flex;
             align-items: center;
             padding: 10px 15px;
-            background: var(--glass-bg);
-            color: #ffffff;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            color: var(--tg-theme-text-color, #ffffff);
             border: none;
-            border-radius: 20px;
+            border-radius: 12px;
             font-size: 14px;
             cursor: pointer;
-            margin-bottom: 20px;
-            backdrop-filter: blur(var(--blur-amount));
-            transition: background 0.3s;
-        }
-        
-        .back-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
+            margin-bottom: 15px;
         }
         
         .loader {
@@ -318,91 +294,30 @@
         
         .status-message {
             padding: 15px;
-            border-radius: 20px;
+            border-radius: 12px;
             margin-top: 15px;
             font-size: 14px;
             display: none;
-            text-align: center;
         }
         
         .status-success {
-            background: rgba(52, 199, 89, 0.2);
+            background: rgba(52, 199, 89, 0.1);
             color: #34c759;
+            display: block;
         }
         
         .status-error {
-            background: rgba(255, 59, 48, 0.2);
+            background: rgba(255, 59, 48, 0.1);
             color: #ff3b30;
-        }
-        
-        .description-section, .whats-new {
-            margin-top: 25px;
-        }
-        
-        details {
-            background: var(--glass-bg);
-            border-radius: 20px;
-            padding: 15px;
-            border: var(--glass-border);
-            backdrop-filter: blur(var(--blur-amount));
-            box-shadow: var(--shadow);
-        }
-        
-        summary {
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        summary::after {
-            content: '▼';
-            font-size: 12px;
-            transition: transform 0.3s;
-        }
-        
-        details[open] summary::after {
-            transform: rotate(180deg);
-        }
-        
-        details p, details ul {
-            margin-top: 10px;
-            color: #dddddd;
-        }
-        
-        .whats-new h3 {
-            font-size: 16px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .glowing-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: limegreen;
-            border-radius: 50%;
-            margin-left: 10px;
-            animation: pulse 1.5s infinite;
-            box-shadow: 0 0 10px limegreen;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
+            display: block;
         }
         
         .footer {
-            background: var(--glass-bg);
-            border-radius: 20px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
+            border-radius: 16px;
             padding: 20px;
             margin-top: 30px;
-            box-shadow: var(--shadow);
-            border: var(--glass-border);
-            backdrop-filter: blur(var(--blur-amount));
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
         
         .footer-content {
@@ -419,33 +334,29 @@
         .footer-section h3 {
             font-size: 14px;
             margin-bottom: 10px;
+            color: var(--tg-theme-text-color, #ffffff);
         }
         
         .footer-section p, .footer-section a {
             font-size: 12px;
-            color: #aaaaaa;
+            color: var(--tg-theme-hint-color, #aaaaaa);
             margin-bottom: 5px;
             text-decoration: none;
         }
         
         .footer-section a {
             color: #6a9eff;
-            transition: color 0.3s;
-        }
-        
-        .footer-section a:hover {
-            color: #2575fc;
         }
         
         .footer-bottom {
             text-align: center;
             padding-top: 15px;
-            border-top: 1px solid #333333;
+            border-top: 1px solid var(--tg-theme-hint-color, #333333);
         }
         
         .footer-bottom p {
             font-size: 12px;
-            color: #aaaaaa;
+            color: var(--tg-theme-hint-color, #aaaaaa);
         }
         
         .tab-content {
@@ -457,20 +368,19 @@
         }
         
         .search-bar {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             position: relative;
         }
         
         .search-bar input {
             width: 100%;
-            padding: 12px 15px 12px 40px;
-            background: var(--glass-bg);
+            padding: 12px 15px;
+            padding-left: 40px;
+            background: var(--tg-theme-secondary-bg-color, #1c1c1c);
             border: none;
-            border-radius: 20px;
-            color: #ffffff;
+            border-radius: 12px;
+            color: var(--tg-theme-text-color, #ffffff);
             font-size: 14px;
-            backdrop-filter: blur(var(--blur-amount));
-            box-shadow: var(--shadow);
         }
         
         .search-bar svg {
@@ -480,7 +390,7 @@
             transform: translateY(-50%);
             width: 18px;
             height: 18px;
-            fill: #aaaaaa;
+            fill: var(--tg-theme-hint-color, #aaaaaa);
         }
         
         @media (min-width: 768px) {
@@ -493,7 +403,7 @@
             }
             
             .game-image {
-                height: 180px;
+                height: 150px;
             }
         }
     </style>
@@ -501,15 +411,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Plugg Bot</h1>
-            <p>Лучшая коллекция приваток для всех платформ</p>
+            <h1>Plugg BOT</h1>
+            <p>Лучшая коллекция игр для всех платформ</p>
         </div>
         
         <div class="search-bar">
             <svg viewBox="0 0 24 24">
                 <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14Z"/>
             </svg>
-            <input type="text" placeholder="Поиск приваток..." id="search-input">
+            <input type="text" placeholder="Поиск игр..." id="search-input">
         </div>
         
         <div class="tabs">
@@ -524,308 +434,46 @@
             <div class="games-grid"></div>
         </div>
         
-        <!-- Детали Project Evolution -->
-        <div class="game-details" id="projectevolution-details">
-            <button class="back-btn">← Назад</button>
+        <!-- Детали игры CrazyMita -->
+        <div class="game-details" id="crazymita-details">
+            <button class="back-btn" id="back-btn">← Назад</button>
             
             <div class="game-details-content">
-                <div class="game-header">
-                    <div class="icon-wrapper">
-                        <img class="game-icon" src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="Project Evolution">
-                        <div class="blurry-bg" style="background-image: url('https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13');"></div>
+                <div class="game-details-header">
+                    <div class="game-details-image">
+                        <img src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="CrazyMita">
                     </div>
-                    <div class="game-details-title">Project Evolution</div>
+                    <div>
+                        <div class="game-details-title">CrazyMita</div>
+                        <div class="game-details-meta">Версия: 1.2.5 • Размер: ~150 МБ</div>
+                    </div>
+                </div>
+                
+                <div class="game-details-description">
+                    <p>CrazyMita - это захватывающая экшен-игра с уникальным геймплеем и потрясающей графикой. Игра предлагает:</p>
+                    <ul>
+                        <li>Динамичные бои с разнообразными противниками</li>
+                        <li>Разветвленную систему прокачки персонажа</li>
+                        <li>Десятки уровней с уникальными боссами</li>
+                        <li>Режимы одиночной и многопользовательской игры</li>
+                        <li>Регулярные обновления с новым контентом</li>
+                    </ul>
                 </div>
                 
                 <div class="download-section">
-                    <div class="progress-container" id="progress-container-projectevolution">
+                    <div class="progress-container" id="progress-container">
                         <div class="progress-info">
-                            <span class="progress-text">Статус: <span id="status-text-projectevolution">Готов к загрузке</span></span>
-                            <span id="progress-percent-projectevolution" class="progress-percent">0%</span>
+                            <span class="progress-text">Статус: <span id="status-text">Готов к загрузке</span></span>
+                            <span class="progress-percent" id="progress-percent">0%</span>
                         </div>
                         <div class="progress-bar">
-                            <div id="progress-fill-projectevolution" class="progress-fill"></div>
+                            <div class="progress-fill" id="progress-fill"></div>
                         </div>
                     </div>
                     
-                    <button id="download-btn-projectevolution" class="download-btn">Скачать Project Evolution</button>
+                    <button id="download-btn" class="download-btn">Скачать CrazyMita</button>
                     
-                    <div id="status-message-projectevolution" class="status-message"></div>
-                </div>
-                
-                <div class="description-section">
-                    <details>
-                        <summary>Погрузись в этот мир интересных игр....</summary>
-                        <p>Погрузись в этот мир интересных миров, людей и технологий. Там много фанатов и веселья, множество баттлов, хорошие призы и друзья.</p>
-                    </details>
-                </div>
-                
-                <div class="whats-new">
-                    <h3>What's new <span class="glowing-dot"></span></h3>
-                    <details>
-                        <summary>Update: 0.8.2</summary>
-                        <ul>
-                            <li>- what's new?</li>
-                            <li>- fixed the lackside map</li>
-                            <li>- fixed the guns</li>
-                            <li>- fixed the bugs</li>
-                        </ul>
-                    </details>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Детали StandRise -->
-        <div class="game-details" id="standrise-details">
-            <button class="back-btn">← Назад</button>
-            
-            <div class="game-details-content">
-                <div class="game-header">
-                    <div class="icon-wrapper">
-                        <img class="game-icon" src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="StandRise">
-                        <div class="blurry-bg" style="background-image: url('https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13');"></div>
-                    </div>
-                    <div class="game-details-title">StandRise</div>
-                </div>
-                
-                <div class="download-section">
-                    <div class="progress-container" id="progress-container-standrise">
-                        <div class="progress-info">
-                            <span class="progress-text">Статус: <span id="status-text-standrise">Готов к загрузке</span></span>
-                            <span id="progress-percent-standrise" class="progress-percent">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div id="progress-fill-standrise" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    
-                    <button id="download-btn-standrise" class="download-btn">Скачать StandRise</button>
-                    
-                    <div id="status-message-standrise" class="status-message"></div>
-                </div>
-                
-                <div class="description-section">
-                    <details>
-                        <summary>Погрузись в этот мир интересных игр....</summary>
-                        <p>Погрузись в этот мир интересных миров, людей и технологий. Там много фанатов и веселья, множество баттлов, хорошие призы и друзья.</p>
-                    </details>
-                </div>
-                
-                <div class="whats-new">
-                    <h3>What's new <span class="glowing-dot"></span></h3>
-                    <details>
-                        <summary>Update: 0.8.2</summary>
-                        <ul>
-                            <li>- what's new?</li>
-                            <li>- fixed the lackside map</li>
-                            <li>- fixed the guns</li>
-                            <li>- fixed the bugs</li>
-                        </ul>
-                    </details>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Детали StandKnife -->
-        <div class="game-details" id="standknife-details">
-            <button class="back-btn">← Назад</button>
-            
-            <div class="game-details-content">
-                <div class="game-header">
-                    <div class="icon-wrapper">
-                        <img class="game-icon" src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="StandKnife">
-                        <div class="blurry-bg" style="background-image: url('https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13');"></div>
-                    </div>
-                    <div class="game-details-title">StandKnife</div>
-                </div>
-                
-                <div class="download-section">
-                    <div class="progress-container" id="progress-container-standknife">
-                        <div class="progress-info">
-                            <span class="progress-text">Статус: <span id="status-text-standknife">Готов к загрузке</span></span>
-                            <span id="progress-percent-standknife" class="progress-percent">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div id="progress-fill-standknife" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    
-                    <button id="download-btn-standknife" class="download-btn">Скачать StandKnife</button>
-                    
-                    <div id="status-message-standknife" class="status-message"></div>
-                </div>
-                
-                <div class="description-section">
-                    <details>
-                        <summary>Погрузись в этот мир интересных игр....</summary>
-                        <p>Погрузись в этот мир интересных миров, людей и технологий. Там много фанатов и веселья, множество баттлов, хорошие призы и друзья.</p>
-                    </details>
-                </div>
-                
-                <div class="whats-new">
-                    <h3>What's new <span class="glowing-dot"></span></h3>
-                    <details>
-                        <summary>Update: 0.8.2</summary>
-                        <ul>
-                            <li>- what's new?</li>
-                            <li>- fixed the lackside map</li>
-                            <li>- fixed the guns</li>
-                            <li>- fixed the bugs</li>
-                        </ul>
-                    </details>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Детали StandLeo -->
-        <div class="game-details" id="standleo-details">
-            <button class="back-btn">← Назад</button>
-            
-            <div class="game-details-content">
-                <div class="game-header">
-                    <div class="icon-wrapper">
-                        <img class="game-icon" src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="StandLeo">
-                        <div class="blurry-bg" style="background-image: url('https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13');"></div>
-                    </div>
-                    <div class="game-details-title">StandLeo</div>
-                </div>
-                
-                <div class="download-section">
-                    <div class="progress-container" id="progress-container-standleo">
-                        <div class="progress-info">
-                            <span class="progress-text">Статус: <span id="status-text-standleo">Готов к загрузке</span></span>
-                            <span id="progress-percent-standleo" class="progress-percent">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div id="progress-fill-standleo" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    
-                    <button id="download-btn-standleo" class="download-btn">Скачать StandLeo</button>
-                    
-                    <div id="status-message-standleo" class="status-message"></div>
-                </div>
-                
-                <div class="description-section">
-                    <details>
-                        <summary>Погрузись в этот мир интересных игр....</summary>
-                        <p>Погрузись в этот мир интересных миров, людей и технологий. Там много фанатов и веселья, множество баттлов, хорошие призы и друзья.</p>
-                    </details>
-                </div>
-                
-                <div class="whats-new">
-                    <h3>What's new <span class="glowing-dot"></span></h3>
-                    <details>
-                        <summary>Update: 0.8.2</summary>
-                        <ul>
-                            <li>- what's new?</li>
-                            <li>- fixed the lackside map</li>
-                            <li>- fixed the guns</li>
-                            <li>- fixed the bugs</li>
-                        </ul>
-                    </details>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Детали StandChillow -->
-        <div class="game-details" id="standchillow-details">
-            <button class="back-btn">← Назад</button>
-            
-            <div class="game-details-content">
-                <div class="game-header">
-                    <div class="icon-wrapper">
-                        <img class="game-icon" src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="StandChillow">
-                        <div class="blurry-bg" style="background-image: url('https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13');"></div>
-                    </div>
-                    <div class="game-details-title">StandChillow</div>
-                </div>
-                
-                <div class="download-section">
-                    <div class="progress-container" id="progress-container-standchillow">
-                        <div class="progress-info">
-                            <span class="progress-text">Статус: <span id="status-text-standchillow">Готов к загрузке</span></span>
-                            <span id="progress-percent-standchillow" class="progress-percent">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div id="progress-fill-standchillow" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    
-                    <button id="download-btn-standchillow" class="download-btn">Скачать StandChillow</button>
-                    
-                    <div id="status-message-standchillow" class="status-message"></div>
-                </div>
-                
-                <div class="description-section">
-                    <details>
-                        <summary>Погрузись в этот мир интересных игр....</summary>
-                        <p>Погрузись в этот мир интересных миров, людей и технологий. Там много фанатов и веселья, множество баттлов, хорошие призы и друзей.</p>
-                    </details>
-                </div>
-                
-                <div class="whats-new">
-                    <h3>What's new <span class="glowing-dot"></span></h3>
-                    <details>
-                        <summary>Update: 0.8.2</summary>
-                        <ul>
-                            <li>- what's new?</li>
-                            <li>- fixed the lackside map</li>
-                            <li>- fixed the guns</li>
-                            <li>- fixed the bugs</li>
-                        </ul>
-                    </details>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Детали Crossoff -->
-        <div class="game-details" id="crossoff-details">
-            <button class="back-btn">← Назад</button>
-            
-            <div class="game-details-content">
-                <div class="game-header">
-                    <div class="icon-wrapper">
-                        <img class="game-icon" src="https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13" alt="Crossoff">
-                        <div class="blurry-bg" style="background-image: url('https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13');"></div>
-                    </div>
-                    <div class="game-details-title">Crossoff</div>
-                </div>
-                
-                <div class="download-section">
-                    <div class="progress-container" id="progress-container-crossoff">
-                        <div class="progress-info">
-                            <span class="progress-text">Статус: <span id="status-text-crossoff">Готов к загрузке</span></span>
-                            <span id="progress-percent-crossoff" class="progress-percent">0%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div id="progress-fill-crossoff" class="progress-fill"></div>
-                        </div>
-                    </div>
-                    
-                    <button id="download-btn-crossoff" class="download-btn">Скачать Crossoff</button>
-                    
-                    <div id="status-message-crossoff" class="status-message"></div>
-                </div>
-                
-                <div class="description-section">
-                    <details>
-                        <summary>Погрузись в этот мир интересных игр....</summary>
-                        <p>Погрузись в этот мир интересных миров, людей и технологий. Там много фанатов и веселья, множество баттлов, хорошие призы и друзей.</p>
-                    </details>
-                </div>
-                
-                <div class="whats-new">
-                    <h3>What's new <span class="glowing-dot"></span></h3>
-                    <details>
-                        <summary>Update: 0.8.2</summary>
-                        <ul>
-                            <li>- what's new?</li>
-                            <li>- fixed the lackside map</li>
-                            <li>- fixed the guns</li>
-                            <li>- fixed the bugs</li>
-                        </ul>
-                    </details>
+                    <div id="status-message" class="status-message"></div>
                 </div>
             </div>
         </div>
@@ -834,7 +482,7 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>О нас</h3>
-                    <p>Plugg - лучший бот для поиска и скачивания приваток. Мы предлагаем огромную коллекцию популярных приваток для всех платформ.</p>
+                    <p>Plugg BOT - лучший бот для поиска и скачивания приваток. Мы предлагаем огромную коллекцию популярных приваток для всех платформ.</p>
                 </div>
                 
                 <div class="footer-section">
@@ -845,7 +493,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p>© 2025 Plugg. Все права защищены.</p>
+                <p>© 2025 Pluggs. Все права защищены.</p>
             </div>
         </div>
     </div>
@@ -856,7 +504,19 @@
         tg.expand();
         
         // Элементы интерфейса
+        const downloadBtn = document.getElementById('download-btn');
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercent = document.getElementById('progress-percent');
+        const statusText = document.getElementById('status-text');
+        const statusMessage = document.getElementById('status-message');
+        const progressContainer = document.getElementById('progress-container');
+        const backBtn = document.getElementById('back-btn');
+        const gameDetails = document.getElementById('crazymita-details');
         const searchInput = document.getElementById('search-input');
+        
+        // URL для скачивания (оригинальный)
+        const ORIGINAL_URL = 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip';
+        const FILE_NAME = 'CrazyMita.zip';
         
         // Переменные для отслеживания прогресса
         let isDownloading = false;
@@ -866,52 +526,46 @@
         // Данные игр
         const games = [
             {
-                id: 'projectevolution',
-                title: 'Project Evolution',
-                description: 'Захватывающая приватка с эволюционными функциями.',
+                id: 'crazymita',
+                title: 'CrazyMita',
+                description: 'Захватывающая игра в жанре экшен с уникальным геймплеем и графикой.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                downloadUrl: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita1.zip',
-                fileName: 'ProjectEvolution.zip'
+                categories: ['popular', 'action']
             },
             {
-                id: 'standrise',
-                title: 'StandRise',
-                description: 'Приватка с динамичными восстаниями и баттлами.',
+                id: 'neonrush',
+                title: 'Neon Rush',
+                description: 'Гонки в неоновом стиле с улучшениями и мощными автомобилями.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                downloadUrl: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip',
-                fileName: 'StandRise.zip'
+                categories: ['popular', 'action']
             },
             {
-                id: 'standknife',
-                title: 'StandKnife',
-                description: 'Фокус на ближнем бое и ножах.',
+                id: 'spacewarriors',
+                title: 'Space Warriors',
+                description: 'Сражения в космосе с улучшенной системой боя и развития.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                downloadUrl: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita2.zip',
-                fileName: 'StandKnife.zip'
+                categories: ['new', 'action']
             },
             {
-                id: 'standleo',
-                title: 'StandLeo',
-                description: 'Мощная приватка с львиным духом.',
+                id: 'dragonquest',
+                title: 'Dragon Quest',
+                description: 'РПГ с открытым миром, драконами и захватывающим сюжетом.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                downloadUrl: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita3.zip',
-                fileName: 'StandLeo.zip'
+                categories: ['rpg']
             },
             {
-                id: 'standchillow',
-                title: 'StandChillow',
-                description: 'Расслабленная приватка для чилла.',
+                id: 'zombiesurvival',
+                title: 'Zombie Survival',
+                description: 'Выживание в мире зомби с ограниченными ресурсами и командной игрой.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                downloadUrl: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip',
-                fileName: 'StandChillow.zip'
+                categories: ['new', 'action']
             },
             {
-                id: 'crossoff',
-                title: 'Crossoff',
-                description: 'Кроссовер приватка с уникальными элементами.',
+                id: 'magicclash',
+                title: 'Magic Clash',
+                description: 'Стратегическая карточная игра с элементами магии и тактики.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                downloadUrl: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.zip',
-                fileName: 'Crossoff.zip'
+                categories: ['strategy']
             }
         ];
         
@@ -922,7 +576,9 @@
             
             grid.innerHTML = '';
             
-            games.forEach(game => {
+            const filteredGames = tab === 'all' ? games : games.filter(game => game.categories.includes(tab));
+            
+            filteredGames.forEach(game => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 card.dataset.game = game.id;
@@ -936,9 +592,23 @@
                         <div class="game-description">${game.description}</div>
                     </div>
                 `;
-                card.addEventListener('click', () => document.getElementById(`${game.id}-details`).classList.add('active'));
+                card.addEventListener('click', handleGameClick);
                 grid.appendChild(card);
             });
+        }
+        
+        // Обработчик клика по карточке игры
+        function handleGameClick(e) {
+            const gameId = e.currentTarget.dataset.game;
+            if (gameId === 'crazymita') {
+                gameDetails.classList.add('active');
+            } else {
+                tg.showPopup({
+                    title: 'Скоро будет доступно',
+                    message: 'Эта игра находится в разработке и скоро будет доступна для скачивания!',
+                    buttons: [{type: 'ok', text: 'Понятно'}]
+                });
+            }
         }
         
         // Обработчики для вкладок
@@ -953,7 +623,7 @@
                 
                 currentTab = tab.dataset.tab;
                 renderGames(currentTab);
-                applySearch();
+                applySearch(); // Применить поиск при смене таба
             });
         });
         
@@ -971,22 +641,17 @@
             });
         }
         
-        // Обработчики для кнопок "Назад"
-        document.querySelectorAll('.back-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                btn.closest('.game-details').classList.remove('active');
-                if (xhr && isDownloading) {
-                    xhr.abort();
-                    isDownloading = false;
-                }
-            });
+        // Обработчик кнопки "Назад"
+        backBtn.addEventListener('click', () => {
+            gameDetails.classList.remove('active');
+            if (xhr && isDownloading) {
+                xhr.abort();
+                resetDownloadUI();
+            }
         });
         
         // Функция для обновления прогресса
-        function updateProgress(percent, gameId) {
-            const progressFill = document.getElementById(`progress-fill-${gameId}`);
-            const progressPercent = document.getElementById(`progress-percent-${gameId}`);
-            const statusText = document.getElementById(`status-text-${gameId}`);
+        function updateProgress(percent) {
             progressFill.style.width = percent + '%';
             progressPercent.textContent = percent + '%';
             
@@ -1000,60 +665,56 @@
         }
         
         // Функция для показа статуса
-        function showStatus(message, isSuccess, gameId) {
-            const statusMessage = document.getElementById(`status-message-${gameId}`);
+        function showStatus(message, isSuccess) {
             statusMessage.textContent = message;
             statusMessage.className = `status-message ${isSuccess ? 'status-success' : 'status-error'}`;
             statusMessage.style.display = 'block';
         }
         
         // Сброс UI загрузки
-        function resetDownloadUI(gameId) {
+        function resetDownloadUI() {
             isDownloading = false;
-            const downloadBtn = document.getElementById(`download-btn-${gameId}`);
-            const progressContainer = document.getElementById(`progress-container-${gameId}`);
             downloadBtn.disabled = false;
-            downloadBtn.textContent = 'Скачать ' + games.find(g => g.id === gameId).title;
+            downloadBtn.textContent = 'Скачать CrazyMita';
             progressContainer.style.display = 'none';
-            document.getElementById(`status-message-${gameId}`).style.display = 'none';
-            updateProgress(0, gameId);
+            statusMessage.style.display = 'none';
+            updateProgress(0);
         }
         
         // Функция для скачивания файла
-        function downloadFile(gameId) {
+        function downloadFile() {
             if (isDownloading) return;
-            
-            const game = games.find(g => g.id === gameId);
-            const downloadBtn = document.getElementById(`download-btn-${gameId}`);
-            const progressContainer = document.getElementById(`progress-container-${gameId}`);
-            const statusText = document.getElementById(`status-text-${gameId}`);
             
             isDownloading = true;
             downloadBtn.disabled = true;
             downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
             progressContainer.style.display = 'block';
             statusText.textContent = 'Запрос на скачивание...';
-            updateProgress(0, gameId);
+            updateProgress(0);
             
+            // Добавляем уникальный параметр к URL для принудительной перезагрузки
             const timestamp = Date.now();
-            const downloadUrl = `${game.downloadUrl}?t=${timestamp}`;
+            const downloadUrl = `${ORIGINAL_URL}?t=${timestamp}`;
             
             if (tg.isVersionAtLeast('8.0')) {
+                // Use native downloadFile method with unique URL
                 tg.downloadFile({
                     url: downloadUrl,
-                    file_name: game.fileName
+                    file_name: FILE_NAME
                 }, (accepted) => {
                     if (accepted) {
                         statusText.textContent = 'Скачивание начато...';
-                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true, gameId);
-                        updateProgress(100, gameId);
+                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
+                        // Note: No progress available with native download, so simulate or just show message
+                        updateProgress(100); // Fake completion since no progress
                     } else {
-                        showStatus('Скачивание отменено.', false, gameId);
+                        showStatus('Скачивание отменено.', false);
                     }
-                    resetDownloadUI(gameId);
+                    resetDownloadUI();
                     downloadBtn.textContent = 'Скачать еще раз';
                 });
             } else {
+                // Fallback to XMLHttpRequest with unique URL
                 try {
                     xhr = new XMLHttpRequest();
                     xhr.open('GET', downloadUrl, true);
@@ -1062,7 +723,7 @@
                     xhr.onprogress = function(event) {
                         if (event.lengthComputable) {
                             const percent = Math.round((event.loaded / event.total) * 100);
-                            updateProgress(percent, gameId);
+                            updateProgress(percent);
                         }
                     };
                     
@@ -1073,50 +734,69 @@
                             const a = document.createElement('a');
                             a.style.display = 'none';
                             a.href = url;
-                            a.download = game.fileName;
+                            a.download = FILE_NAME;
                             document.body.appendChild(a);
                             a.click();
                             URL.revokeObjectURL(url);
                             document.body.removeChild(a);
                             
-                            updateProgress(100, gameId);
-                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true, gameId);
+                            updateProgress(100);
+                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
                         } else {
-                            showStatus('Ошибка загрузки: статус ' + xhr.status, false, gameId);
-                            updateProgress(0, gameId);
+                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
+                            updateProgress(0);
                         }
-                        resetDownloadUI(gameId);
+                        resetDownloadUI();
                         xhr = null;
                     };
                     
                     xhr.onerror = function() {
-                        showStatus('Ошибка сети. Проверьте подключение.', false, gameId);
-                        updateProgress(0, gameId);
-                        resetDownloadUI(gameId);
+                        showStatus('Ошибка сети. Проверьте подключение.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
                         xhr = null;
                     };
                     
                     xhr.onabort = function() {
-                        showStatus('Загрузка отменена.', false, gameId);
-                        updateProgress(0, gameId);
-                        resetDownloadUI(gameId);
+                        showStatus('Загрузка отменена.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
                         xhr = null;
                     };
                     
                     xhr.send();
                 } catch (error) {
-                    showStatus('Ошибка: ' + error.message, false, gameId);
-                    resetDownloadUI(gameId);
+                    showStatus('Ошибка: ' + error.message, false);
+                    resetDownloadUI();
                     xhr = null;
                 }
             }
         }
         
+        // Обработчик кнопки скачивания
+        downloadBtn.addEventListener('click', downloadFile);
+        
         // Инициализация при загрузке
         tg.ready();
+        updateProgress(0);
         
         // Рендеринг начального таба
         renderGames('all');
+        
+        // Слушатель события writeAccessRequested (если нужно, но в данном случае не используется)
+        tg.onEvent('writeAccessRequested', (result) => {
+            console.log('Write access requested:', result);
+        });
+        
+        // Для отладки события fileDownloadRequested
+        tg.onEvent('fileDownloadRequested', (data) => {
+            console.log('File download requested:', data);
+            if (data.status === 'downloading') {
+                showStatus('Скачивание начато!', true);
+            } else if (data.status === 'cancelled') {
+                showStatus('Скачивание отменено.', false);
+            }
+        });
     </script>
 </body>
 </html>
