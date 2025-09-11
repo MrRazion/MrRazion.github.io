@@ -43,9 +43,6 @@
             background: var(--tg-theme-secondary-bg-color, #1c1c1c);
             border-radius: 16px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
         .header h1 {
@@ -61,15 +58,6 @@
         .header p {
             color: var(--tg-theme-hint-color, #aaaaaa);
             font-size: 14px;
-        }
-        
-        .fullscreen-btn {
-            padding: 8px 12px;
-            background: linear-gradient(45deg, #6a11cb, #2575fc);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
         }
         
         .tabs {
@@ -300,6 +288,7 @@
             font-size: 14px;
             cursor: pointer;
             margin-bottom: 15px;
+            margin-top: 40px;
         }
         
         .loader {
@@ -444,11 +433,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <div>
-                <h1>Plugg BOT</h1>
-                <p>Лучшая коллекция игр для всех платформ</p>
-            </div>
-            <button id="fullscreen-btn">Enter Fullscreen</button>
+            <h1>Plugg BOT</h1>
+            <p>Лучшая коллекция игр для всех платформ</p>
         </div>
         
         <div class="search-bar">
@@ -553,7 +539,6 @@
         const detailsMeta = document.getElementById('details-meta');
         const detailsDescription = document.getElementById('details-description');
         const searchInput = document.getElementById('search-input');
-        const fullscreenBtn = document.getElementById('fullscreen-btn');
         
         // Переменные для отслеживания прогресса
         let isDownloading = false;
@@ -828,21 +813,15 @@
         // Обработчик кнопки скачивания
         downloadBtn.addEventListener('click', downloadFile);
         
-        // Обработчик fullscreen
-        fullscreenBtn.addEventListener('click', () => {
-            if (tg.isFullscreen) {
-                tg.exitFullscreen();
-                fullscreenBtn.textContent = 'Enter Fullscreen';
-            } else {
-                tg.setHeaderColor('bg_color'); // Или 'transparent' если поддерживается, но по docs hex or theme
-                tg.requestFullscreen();
-                fullscreenBtn.textContent = 'Exit Fullscreen';
-            }
-        });
-        
         // Инициализация при загрузке
         tg.ready();
         updateProgress(0);
+        
+        // Автоматический вход в fullscreen
+        if (!tg.isFullscreen) {
+            tg.setHeaderColor('bg_color');
+            tg.requestFullscreen();
+        }
         
         // Установка safe area insets
         if (tg.safeAreaInset) {
@@ -850,13 +829,6 @@
             document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${tg.safeAreaInset.bottom}px`);
             document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${tg.safeAreaInset.left}px`);
             document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${tg.safeAreaInset.right}px`);
-        }
-        
-        // Установка начального состояния fullscreen кнопки
-        if (tg.isFullscreen) {
-            fullscreenBtn.textContent = 'Exit Fullscreen';
-        } else {
-            fullscreenBtn.textContent = 'Enter Fullscreen';
         }
         
         // Рендеринг начального таба
