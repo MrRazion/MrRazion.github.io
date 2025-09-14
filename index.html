@@ -543,16 +543,9 @@
         // Переменные для отслеживания прогресса
         let isDownloading = false;
         let currentTab = 'all';
-        let xhr = null;
         let currentDownloadUrl = '';
         let currentFileName = '';
         let currentGameTitle = '';
-        let totalSize = 0;
-        let downloadedSize = 0;
-        let blobs = [];
-        let chunkSize = 5 * 1024 * 1024; // 5 MB chunks to reduce memory usage
-        let retryCount = 0;
-        const maxRetries = 5;
         
         // Данные игр
         const games = [
@@ -744,19 +737,11 @@
         backBtn.addEventListener('click', () => {
             gameDetails.classList.remove('active');
             if (isDownloading) {
-                stopDownload();
+                resetDownloadUI();
             }
         });
         
-        // Функция для остановки загрузки
-        function stopDownload() {
-            if (xhr) {
-                xhr.abort();
-            }
-            resetDownloadUI();
-        }
-        
-        // Функция для обновления прогресса
+        // Функция для обновления прогресса (for fallback)
         function updateProgress(percent) {
             progressFill.style.width = percent + '%';
             progressPercent.textContent = percent + '%';
@@ -784,95 +769,51 @@
             downloadBtn.textContent = `Скачать ${currentGameTitle}`;
             progressContainer.style.display = 'none';
             statusMessage.style.display = 'none';
-            updateProgress(0);
-            blobs = [];
-            downloadedSize = 0;
-            retryCount = 0;
+            if (progressFill) updateProgress(0);
         }
         
-        // Функция для получения размера файла
-        function getFileSize(url, callback) {
-            const headXhr = new XMLHttpRequest();
-            headXhr.open('HEAD', url, true);
-            headXhr.onreadystatechange = function () {
-                if (headXhr.readyState === headXhr.DONE) {
-                    if (headXhr.status === 200) {
-                        const size = parseInt(headXhr.getResponseHeader('Content-Length'));
-                        callback(null, size);
-                    } else {
-                        callback(new Error('Failed to get file size'), null);
-                    }
-                }
-            };
-            headXhr.send();
-        }
-        
-        // Функция для скачивания чанка
-        function downloadChunk(url) {
-            xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
+        // Fallback XMLHttpRequest download
+        function fallbackDownload() {
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', currentDownloadUrl, true);
             xhr.responseType = 'blob';
-            const start = downloadedSize;
-            const end = Math.min(start + chunkSize - 1, totalSize - 1);
-            xhr.setRequestHeader('Range', `bytes=${start}-${end}`);
             
             xhr.onprogress = function(event) {
                 if (event.lengthComputable) {
-                    const chunkProgress = event.loaded;
-                    const totalProgress = start + chunkProgress;
-                    const percent = Math.round((totalProgress / totalSize) * 100);
+                    const percent = Math.round((event.loaded / event.total) * 100);
                     updateProgress(percent);
                 }
             };
             
             xhr.onload = function() {
-                if (xhr.status === 206 || xhr.status === 200) {
-                    blobs.push(xhr.response);
-                    downloadedSize += xhr.response.size;
-                    retryCount = 0;
-                    if (downloadedSize < totalSize) {
-                        downloadChunk(url);
-                    } else {
-                        completeDownload();
-                    }
+                if (xhr.status === 200) {
+                    const blob = xhr.response;
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = currentFileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    updateProgress(100);
+                    showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
                 } else {
-                    handleDownloadError();
+                    showStatus('Ошибка загрузки: статус ' + xhr.status, false);
+                    updateProgress(0);
                 }
+                resetDownloadUI();
             };
             
-            xhr.onerror = handleDownloadError;
-            xhr.onabort = handleDownloadError;
+            xhr.onerror = function() {
+                showStatus('Ошибка сети. Проверьте подключение.', false);
+                updateProgress(0);
+                resetDownloadUI();
+            };
             
             xhr.send();
-        }
-        
-        // Функция для завершения загрузки
-        function completeDownload() {
-            const fullBlob = new Blob(blobs);
-            const objectUrl = URL.createObjectURL(fullBlob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = objectUrl;
-            a.download = currentFileName;
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(objectUrl);
-            document.body.removeChild(a);
-            updateProgress(100);
-            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
-            resetDownloadUI();
-        }
-        
-        // Функция для обработки ошибки загрузки
-        function handleDownloadError() {
-            if (retryCount < maxRetries) {
-                retryCount++;
-                showStatus(`Ошибка загрузки. Попытка повторно ${retryCount}/${maxRetries}...`, false);
-                setTimeout(() => downloadChunk(currentDownloadUrl), 2000 * retryCount);
-            } else {
-                showStatus('Ошибка загрузки после нескольких попыток. Попробуйте позже.', false);
-                resetDownloadUI();
-            }
         }
         
         // Функция для скачивания файла
@@ -881,47 +822,36 @@
             
             isDownloading = true;
             downloadBtn.disabled = true;
-            downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
+            downloadBtn.innerHTML = '<span class="loader"></span> Запрос на скачивание...';
             progressContainer.style.display = 'block';
-            statusText.textContent = 'Подготовка к загрузке...';
+            statusText.textContent = 'Запрос на скачивание...';
             updateProgress(0);
-            blobs = [];
-            downloadedSize = 0;
-            retryCount = 0;
             
+            // Добавляем уникальный параметр к URL для принудительной перезагрузки
             const timestamp = Date.now();
-            currentDownloadUrl = `${currentDownloadUrl}?t=${timestamp}`;
+            const downloadUrl = `${currentDownloadUrl}?t=${timestamp}`;
             
-            getFileSize(currentDownloadUrl, (err, size) => {
-                if (err) {
-                    showStatus('Не удалось получить размер файла. Используем альтернативный метод.', false);
-                    fallbackDownload();
-                    return;
-                }
-                totalSize = size;
-                if (totalSize > 0) {
-                    downloadChunk(currentDownloadUrl);
-                } else {
-                    fallbackDownload();
-                }
-            });
-        }
-        
-        // Альтернативный метод скачивания через anchor
-        function fallbackDownload() {
-            try {
-                const a = document.createElement('a');
-                a.style.display = 'none';
-                a.href = currentDownloadUrl;
-                a.download = currentFileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                showStatus('Загрузка начата альтернативным методом. Проверьте ваши загрузки.', true);
-            } catch (error) {
-                showStatus('Ошибка альтернативной загрузки: ' + error.message, false);
+            if (tg.isVersionAtLeast('8.0')) {
+                // Use native downloadFile method with unique URL
+                tg.downloadFile({
+                    url: downloadUrl,
+                    file_name: currentFileName
+                }, (accepted) => {
+                    if (accepted) {
+                        statusText.textContent = 'Скачивание начато...';
+                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
+                        // Note: No progress available with native download, so simulate or just show message
+                        updateProgress(100); // Fake completion since no progress
+                    } else {
+                        showStatus('Скачивание отменено.', false);
+                    }
+                    resetDownloadUI();
+                    downloadBtn.textContent = `Скачать еще раз ${currentGameTitle}`;
+                });
+            } else {
+                // Fallback to XMLHttpRequest with unique URL
+                fallbackDownload();
             }
-            resetDownloadUI();
         }
         
         // Обработчик кнопки скачивания
