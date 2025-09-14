@@ -277,26 +277,6 @@
             opacity: 0.9;
         }
         
-        .retry-btn {
-            display: none;
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(45deg, #cb116a, #fc7525);
-            color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            margin-top: 10px;
-        }
-        
-        .retry-btn:not(:disabled):hover {
-            opacity: 0.9;
-        }
-        
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -467,28 +447,12 @@
         <div class="tabs">
             <div class="tab active" data-tab="all">Privatki</div>
             <div class="tab" data-tab="popular">Privatki on Pc</div>
-            <div class="tab" data-tab="new">Новые</div>
-            <div class="tab" data-tab="action">Экшен</div>
-            <div class="tab" data-tab="rpg">RPG</div>
-            <div class="tab" data-tab="strategy">Стратегии</div>
         </div>
         
         <div class="tab-content active" id="all-tab">
             <div class="games-grid"></div>
         </div>
         <div class="tab-content" id="popular-tab">
-            <div class="games-grid"></div>
-        </div>
-        <div class="tab-content" id="new-tab">
-            <div class="games-grid"></div>
-        </div>
-        <div class="tab-content" id="action-tab">
-            <div class="games-grid"></div>
-        </div>
-        <div class="tab-content" id="rpg-tab">
-            <div class="games-grid"></div>
-        </div>
-        <div class="tab-content" id="strategy-tab">
             <div class="games-grid"></div>
         </div>
         
@@ -531,8 +495,6 @@
                     
                     <button id="download-btn" class="download-btn">Скачать</button>
                     
-                    <button id="retry-btn" class="retry-btn">Повторить скачивание</button>
-                    
                     <div id="status-message" class="status-message"></div>
                 </div>
             </div>
@@ -559,13 +521,12 @@
     </div>
 
     <script>
-        // Инициализация Telegram Web App - расширяем приложение для полного экрана
+        // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
         
-        // Элементы интерфейса - все DOM элементы для управления UI
+        // Элементы интерфейса
         const downloadBtn = document.getElementById('download-btn');
-        const retryBtn = document.getElementById('retry-btn');
         const progressFill = document.getElementById('progress-fill');
         const progressPercent = document.getElementById('progress-percent');
         const statusText = document.getElementById('status-text');
@@ -579,24 +540,15 @@
         const detailsDescription = document.getElementById('details-description');
         const searchInput = document.getElementById('search-input');
         
-        // Переменные для отслеживания состояния - расширенный набор для лучшего контроля
+        // Переменные для отслеживания прогресса
         let isDownloading = false;
         let currentTab = 'all';
         let xhr = null;
         let currentDownloadUrl = '';
         let currentFileName = '';
         let currentGameTitle = '';
-        let totalSize = 0;
-        let downloadedSize = 0;
-        let blobs = [];
-        let chunkSize = 5 * 1024 * 1024; // 5 MB chunks for memory efficiency
-        let retryCount = 0;
-        const maxRetries = 5;
-        const retryDelayBase = 2000; // Base delay for exponential backoff
-        let downloadTimeout = null;
-        const downloadTimeoutDuration = 30000; // 30 seconds timeout for each chunk
         
-        // Расширенный массив игр - добавлено больше игр для bulkier кода
+        // Данные игр
         const games = [
             {
                 id: 'standrise',
@@ -606,7 +558,7 @@
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
                 fileName: 'StandRise.apk',
-                version: '1.4.0',
+                version: '1.2.5',
                 size: '~150 МБ'
             },
             {
@@ -617,146 +569,34 @@
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
                 fileName: 'StandLeo.apk',
-                version: '1.3.5',
-                size: '~180 МБ'
+                version: '1.2.5',
+                size: '~150 МБ'
             },
             {
                 id: 'projectevolution',
                 title: 'Project Evolution',
                 description: 'Сражения в космосе с улучшенной системой боя и развития.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['popular', 'action', 'new'],
+                categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
                 fileName: 'ProjectEvolution.apk',
-                version: '2.0.0',
-                size: '~200 МБ'
+                version: '1.2.5',
+                size: '~150 МБ'
             },
             {
                 id: 'standknife',
                 title: 'StandKnife',
                 description: 'РПГ с открытым миром, драконами и захватывающим сюжетом.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['rpg', 'popular'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'StandKnife.apk',
-                version: '1.5.2',
-                size: '~220 МБ'
-            },
-            {
-                id: 'neonrush',
-                title: 'Neon Rush',
-                description: 'Гонки в неоновом стиле с улучшениями и мощными автомобилями.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'NeonRush.apk',
-                version: '1.3.0',
-                size: '~200 МБ'
-            },
-            {
-                id: 'spacewarriors',
-                title: 'Space Warriors',
-                description: 'Сражения в космосе с улучшенной системой боя и развития.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['new', 'action'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'SpaceWarriors.apk',
-                version: '1.4.2',
-                size: '~250 МБ'
-            },
-            {
-                id: 'dragonquest',
-                title: 'Dragon Quest',
-                description: 'РПГ с открытым миром, драконами и захватывающим сюжетом.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['rpg'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'DragonQuest.apk',
-                version: '2.0.1',
-                size: '~300 МБ'
-            },
-            {
-                id: 'zombiesurvival',
-                title: 'Zombie Survival',
-                description: 'Выживание в мире зомби с ограниченными ресурсами и командной игрой.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['new', 'action'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'ZombieSurvival.apk',
-                version: '1.5.3',
-                size: '~180 МБ'
-            },
-            {
-                id: 'magicclash',
-                title: 'Magic Clash',
-                description: 'Стратегическая карточная игра с элементами магии и тактики.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['strategy'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'MagicClash.apk',
-                version: '1.1.0',
-                size: '~220 МБ'
-            },
-            // Additional games to make the array bulkier
-            {
-                id: 'cyberhunt',
-                title: 'Cyber Hunt',
-                description: 'Футуристический шутер с элементами киберпанка.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['action', 'new'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'CyberHunt.apk',
-                version: '1.0.5',
-                size: '~160 МБ'
-            },
-            {
-                id: 'mysticalrealms',
-                title: 'Mystical Realms',
-                description: 'Фэнтезийная RPG с магией и квестами.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['rpg', 'popular'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'MysticalRealms.apk',
-                version: '2.2.0',
-                size: '~280 МБ'
-            },
-            {
-                id: 'strategicwarfare',
-                title: 'Strategic Warfare',
-                description: 'Стратегическая игра с битвами и тактикой.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['strategy', 'new'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'StrategicWarfare.apk',
-                version: '1.8.1',
-                size: '~240 МБ'
-            },
-            // Even more games for bulk
-            {
-                id: 'adventurequest',
-                title: 'Adventure Quest',
-                description: 'Приключенческая игра с исследованием миров.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['action', 'rpg'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'AdventureQuest.apk',
-                version: '3.0.0',
-                size: '~300 МБ'
-            },
-            {
-                id: 'battleroyale',
-                title: 'Battle Royale',
-                description: 'Королевская битва с выживанием.',
-                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
-                categories: ['action', 'popular'],
-                url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'BattleRoyale.apk',
-                version: '4.5.6',
-                size: '~350 МБ'
+                fileName: 'StandKnife.apk',
+                version: '1.2.5',
+                size: '~150 МБ'
             }
         ];
         
-        // Функция для рендеринга игр в таб - с поддержкой дополнительных табов
+        // Функция для рендеринга игр в таб
         function renderGames(tab) {
             const grid = document.querySelector(`#${tab}-tab .games-grid`);
             if (!grid) return;
@@ -784,9 +624,8 @@
             });
         }
         
-        // Обработчик клика по карточке игры - расширен с логгированием
+        // Обработчик клика по карточке игры
         function handleGameClick(e) {
-            console.log('Game card clicked:', e.currentTarget.dataset.gameId);
             const gameId = e.currentTarget.dataset.gameId;
             const game = games.find(g => g.id === gameId);
             if (game) {
@@ -794,11 +633,11 @@
                 detailsImage.src = game.image;
                 detailsImage.alt = game.title;
                 detailsMeta.textContent = `Версия: ${game.version} • Размер: ${game.size}`;
+                // Можно обновить description если нужно, но пока статичный
                 currentDownloadUrl = game.url;
                 currentFileName = game.fileName;
                 currentGameTitle = game.title;
                 downloadBtn.textContent = `Скачать ${game.title}`;
-                retryBtn.style.display = 'none';
                 gameDetails.classList.add('active');
             } else {
                 tg.showPopup({
@@ -809,7 +648,7 @@
             }
         }
         
-        // Обработчики для вкладок - с поддержкой новых табов
+        // Обработчики для вкладок
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -817,20 +656,16 @@
                 
                 document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                 const content = document.getElementById(`${tab.dataset.tab}-tab`);
-                if (content) content.classList.add('active');
+                content.classList.add('active');
                 
                 currentTab = tab.dataset.tab;
                 renderGames(currentTab);
-                applySearch();
+                applySearch(); // Применить поиск при смене таба
             });
         });
         
-        // Обработчик поиска - с debounce для производительности
-        let searchTimeout;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applySearch, 300);
-        });
+        // Обработчик поиска
+        searchInput.addEventListener('input', applySearch);
         
         function applySearch() {
             const term = searchInput.value.toLowerCase();
@@ -843,29 +678,16 @@
             });
         }
         
-        // Обработчик кнопки "Назад" - с очисткой состояния
+        // Обработчик кнопки "Назад"
         backBtn.addEventListener('click', () => {
             gameDetails.classList.remove('active');
-            if (isDownloading) {
-                stopDownload();
+            if (xhr && isDownloading) {
+                xhr.abort();
+                resetDownloadUI();
             }
-            resetDownloadUI();
-            console.log('Back button clicked, download state reset');
         });
         
-        // Функция для остановки загрузки - расширенная с таймаутом
-        function stopDownload() {
-            if (xhr) {
-                xhr.abort();
-            }
-            if (downloadTimeout) {
-                clearTimeout(downloadTimeout);
-            }
-            resetDownloadUI();
-            console.log('Download stopped');
-        }
-        
-        // Функция для обновления прогресса - с плавной анимацией
+        // Функция для обновления прогресса
         function updateProgress(percent) {
             progressFill.style.width = percent + '%';
             progressPercent.textContent = percent + '%';
@@ -873,313 +695,160 @@
             if (percent === 0) {
                 statusText.textContent = 'Готов к загрузке';
             } else if (percent < 100) {
-                statusText.textContent = 'Загрузка: ' + percent + '% (' + (downloadedSize / 1024 / 1024).toFixed(2) + ' MB / ' + (totalSize / 1024 / 1024).toFixed(2) + ' MB)';
+                statusText.textContent = 'Загрузка: ' + percent + '%';
             } else {
                 statusText.textContent = 'Загрузка завершена!';
             }
         }
         
-        // Функция для показа статуса - с автоскрытием
-        function showStatus(message, isSuccess, autoHide = false) {
+        // Функция для показа статуса
+        function showStatus(message, isSuccess) {
             statusMessage.textContent = message;
             statusMessage.className = `status-message ${isSuccess ? 'status-success' : 'status-error'}`;
             statusMessage.style.display = 'block';
-            if (autoHide) {
-                setTimeout(() => {
-                    statusMessage.style.display = 'none';
-                }, 5000);
-            }
         }
         
-        // Сброс UI загрузки - полный сброс
+        // Сброс UI загрузки
         function resetDownloadUI() {
             isDownloading = false;
             downloadBtn.disabled = false;
-            downloadBtn.innerHTML = 'Скачать ' + currentGameTitle;
-            retryBtn.style.display = 'none';
+            downloadBtn.textContent = `Скачать ${currentGameTitle}`;
             progressContainer.style.display = 'none';
             statusMessage.style.display = 'none';
             updateProgress(0);
-            blobs = [];
-            downloadedSize = 0;
-            retryCount = 0;
-            if (downloadTimeout) clearTimeout(downloadTimeout);
-            console.log('Download UI reset');
         }
         
-        // Функция для получения размера файла - с обработкой ошибок
-        function getFileSize(url, callback) {
-            const headXhr = new XMLHttpRequest();
-            headXhr.open('HEAD', url, true);
-            headXhr.timeout = 10000; // Timeout for head request
-            headXhr.onreadystatechange = function () {
-                if (headXhr.readyState === headXhr.DONE) {
-                    if (headXhr.status === 200) {
-                        const size = parseInt(headXhr.getResponseHeader('Content-Length'));
-                        callback(null, size);
-                    } else {
-                        callback(new Error('Failed to get file size: status ' + headXhr.status), null);
-                    }
-                }
-            };
-            headXhr.onerror = function () {
-                callback(new Error('Network error getting file size'), null);
-            };
-            headXhr.ontimeout = function () {
-                callback(new Error('Timeout getting file size'), null);
-            };
-            headXhr.send();
-        }
-        
-        // Функция для скачивания чанка - с таймаутом и ретраями
-        function downloadChunk(url) {
-            xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.responseType = 'blob';
-            const start = downloadedSize;
-            const end = Math.min(start + chunkSize - 1, totalSize - 1);
-            xhr.setRequestHeader('Range', `bytes=${start}-${end}`);
-            xhr.timeout = downloadTimeoutDuration;
-            
-            xhr.onprogress = function(event) {
-                if (event.lengthComputable) {
-                    const chunkProgress = event.loaded;
-                    const totalProgress = start + chunkProgress;
-                    const percent = Math.round((totalProgress / totalSize) * 100);
-                    updateProgress(percent);
-                }
-            };
-            
-            xhr.onload = function() {
-                clearTimeout(downloadTimeout);
-                if (xhr.status === 206 || xhr.status === 200) {
-                    blobs.push(xhr.response);
-                    downloadedSize += xhr.response.size;
-                    retryCount = 0;
-                    if (downloadedSize < totalSize) {
-                        setupChunkTimeout();
-                        downloadChunk(url);
-                    } else {
-                        completeDownload();
-                    }
-                } else {
-                    handleDownloadError();
-                }
-            };
-            
-            xhr.onerror = function() {
-                clearTimeout(downloadTimeout);
-                handleDownloadError();
-            };
-            
-            xhr.onabort = function() {
-                clearTimeout(downloadTimeout);
-                showStatus('Загрузка отменена.', false);
-                resetDownloadUI();
-            };
-            
-            xhr.ontimeout = function() {
-                handleDownloadError();
-            };
-            
-            xhr.send();
-        }
-        
-        // Настройка таймаута для чанка
-        function setupChunkTimeout() {
-            downloadTimeout = setTimeout(() => {
-                if (xhr) xhr.abort();
-                handleDownloadError();
-            }, downloadTimeoutDuration);
-        }
-        
-        // Функция для завершения загрузки - с очисткой
-        function completeDownload() {
-            const fullBlob = new Blob(blobs);
-            const objectUrl = URL.createObjectURL(fullBlob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = objectUrl;
-            a.download = currentFileName;
-            document.body.appendChild(a);
-            a.click();
-            URL.revokeObjectURL(objectUrl);
-            document.body.removeChild(a);
-            updateProgress(100);
-            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
-            resetDownloadUI();
-            console.log('Download completed successfully');
-        }
-        
-        // Функция для обработки ошибки загрузки - с экспоненциальной задержкой
-        function handleDownloadError() {
-            if (retryCount < maxRetries) {
-                retryCount++;
-                const delay = retryDelayBase * Math.pow(2, retryCount - 1);
-                showStatus(`Ошибка загрузки. Попытка повторно ${retryCount}/${maxRetries} через ${delay/1000} сек...`, false, true);
-                setTimeout(() => {
-                    setupChunkTimeout();
-                    downloadChunk(currentDownloadUrl);
-                }, delay);
-            } else {
-                showStatus('Ошибка загрузки после нескольких попыток. Попробуйте позже.', false);
-                retryBtn.style.display = 'block';
-                retryBtn.disabled = false;
-                downloadBtn.innerHTML = 'Скачать ' + currentGameTitle;
-                downloadBtn.disabled = false;
-                isDownloading = false;
-                console.log('Max retries reached, showing retry button');
-            }
-        }
-        
-        // Функция для скачивания файла - расширенная с native и fallback
+        // Функция для скачивания файла
         function downloadFile() {
             if (isDownloading) return;
             
             isDownloading = true;
             downloadBtn.disabled = true;
-            retryBtn.style.display = 'none';
-            downloadBtn.innerHTML = '<span class="loader"></span> Подготовка...';
+            downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
             progressContainer.style.display = 'block';
-            statusText.textContent = 'Подготовка к загрузке...';
+            statusText.textContent = 'Запрос на скачивание...';
             updateProgress(0);
-            blobs = [];
-            downloadedSize = 0;
-            retryCount = 0;
             
+            // Добавляем уникальный параметр к URL для принудительной перезагрузки
             const timestamp = Date.now();
-            currentDownloadUrl = `${currentDownloadUrl}?t=${timestamp}`;
+            const downloadUrl = `${currentDownloadUrl}?t=${timestamp}`;
+            
+            // Добавляем уникальный идентификатор к имени файла для избежания конфликтов с существующими файлами
+            const uniqueFileName = currentFileName.replace('.apk', `_${timestamp}.apk`);
             
             if (tg.isVersionAtLeast('8.0')) {
-                console.log('Using native tg.downloadFile');
+                // Use native downloadFile method with unique URL and file name
                 tg.downloadFile({
-                    url: currentDownloadUrl,
-                    file_name: currentFileName
+                    url: downloadUrl,
+                    file_name: uniqueFileName
                 }, (accepted) => {
                     if (accepted) {
                         statusText.textContent = 'Скачивание начато...';
                         showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
-                        updateProgress(100);
+                        // Note: No progress available with native download, so simulate or just show message
+                        updateProgress(100); // Fake completion since no progress
                     } else {
                         showStatus('Скачивание отменено.', false);
                     }
                     resetDownloadUI();
+                    downloadBtn.textContent = `Скачать еще раз ${currentGameTitle}`;
                 });
             } else {
-                console.log('Using fallback chunked download');
-                getFileSize(currentDownloadUrl, (err, size) => {
-                    if (err) {
-                        showStatus('Не удалось получить размер файла. Пробуем альтернативный метод.', false);
-                        fallbackSimpleDownload();
-                        return;
-                    }
-                    totalSize = size;
-                    if (totalSize > 0) {
-                        setupChunkTimeout();
-                        downloadChunk(currentDownloadUrl);
-                    } else {
-                        fallbackSimpleDownload();
-                    }
-                });
-            }
-        }
-        
-        // Альтернативный простой fallback download
-        function fallbackSimpleDownload() {
-            try {
-                xhr = new XMLHttpRequest();
-                xhr.open('GET', currentDownloadUrl, true);
-                xhr.responseType = 'blob';
-                
-                xhr.onprogress = function(event) {
-                    if (event.lengthComputable) {
-                        const percent = Math.round((event.loaded / event.total) * 100);
-                        updateProgress(percent);
-                    }
-                };
-                
-                xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        const blob = xhr.response;
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.style.display = 'none';
-                        a.href = url;
-                        a.download = currentFileName;
-                        document.body.appendChild(a);
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        document.body.removeChild(a);
-                        
-                        updateProgress(100);
-                        showStatus('Файл успешно скачан альтернативным методом!', true);
-                    } else {
-                        showStatus('Ошибка альтернативной загрузки: статус ' + xhr.status, false);
-                    }
+                // Fallback to XMLHttpRequest with unique URL
+                try {
+                    xhr = new XMLHttpRequest();
+                    xhr.open('GET', downloadUrl, true);
+                    xhr.responseType = 'blob';
+                    
+                    xhr.onprogress = function(event) {
+                        if (event.lengthComputable) {
+                            const percent = Math.round((event.loaded / event.total) * 100);
+                            updateProgress(percent);
+                        }
+                    };
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            const blob = new Blob([xhr.response], { type: 'application/vnd.android.package-archive' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = uniqueFileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            
+                            updateProgress(100);
+                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
+                        } else {
+                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
+                            updateProgress(0);
+                        }
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onerror = function() {
+                        showStatus('Ошибка сети. Проверьте подключение.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.onabort = function() {
+                        showStatus('Загрузка отменена.', false);
+                        updateProgress(0);
+                        resetDownloadUI();
+                        xhr = null;
+                    };
+                    
+                    xhr.send();
+                } catch (error) {
+                    showStatus('Ошибка: ' + error.message, false);
                     resetDownloadUI();
-                };
-                
-                xhr.onerror = function() {
-                    showStatus('Ошибка сети в альтернативной загрузке.', false);
-                    resetDownloadUI();
-                };
-                
-                xhr.send();
-            } catch (error) {
-                showStatus('Ошибка: ' + error.message, false);
-                resetDownloadUI();
+                    xhr = null;
+                }
             }
         }
         
         // Обработчик кнопки скачивания
         downloadBtn.addEventListener('click', downloadFile);
         
-        // Обработчик кнопки повторной попытки
-        retryBtn.addEventListener('click', () => {
-            retryBtn.disabled = true;
-            downloadFile();
-        });
-        
-        // Инициализация при загрузке - с проверкой версии WebApp
+        // Инициализация при загрузке
         tg.ready();
-        console.log('Telegram WebApp version:', tg.version);
         updateProgress(0);
         
-        // Автоматический вход в fullscreen - с проверкой
+        // Автоматический вход в fullscreen
         if (!tg.isFullscreen) {
             tg.setHeaderColor('bg_color');
             tg.requestFullscreen();
-            console.log('Requested fullscreen mode');
         }
         
-        // Установка safe area insets - с логгированием
+        // Установка safe area insets
         if (tg.safeAreaInset) {
             document.documentElement.style.setProperty('--tg-safe-area-inset-top', `${tg.safeAreaInset.top}px`);
             document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${tg.safeAreaInset.bottom}px`);
             document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${tg.safeAreaInset.left}px`);
             document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${tg.safeAreaInset.right}px`);
-            console.log('Safe area insets set');
         }
         
         // Рендеринг начального таба
         renderGames('all');
         
-        // Слушатель события writeAccessRequested
+        // Слушатель события writeAccessRequested (если нужно, но в данном случае не используется)
         tg.onEvent('writeAccessRequested', (result) => {
             console.log('Write access requested:', result);
         });
         
-        // Для отладки события fileDownloadRequested - расширен с UI обновлением
+        // Для отладки события fileDownloadRequested
         tg.onEvent('fileDownloadRequested', (data) => {
             console.log('File download requested:', data);
             if (data.status === 'downloading') {
-                showStatus('Скачивание начато в Telegram!', true, true);
+                showStatus('Скачивание начато!', true);
             } else if (data.status === 'cancelled') {
-                showStatus('Скачивание отменено пользователем.', false);
-                resetDownloadUI();
-            } else if (data.status === 'completed') {
-                showStatus('Скачивание завершено успешно!', true);
-                resetDownloadUI();
+                showStatus('Скачивание отменено.', false);
             }
         });
     </script>
