@@ -547,19 +547,25 @@
         let currentDownloadUrl = '';
         let currentFileName = '';
         let currentGameTitle = '';
+        let totalSize = 0;
+        let downloadedSize = 0;
+        let blobs = [];
+        let chunkSize = 5 * 1024 * 1024; // 5 MB chunks to reduce memory usage
+        let retryCount = 0;
+        const maxRetries = 5;
         
         // Данные игр
         const games = [
             {
                 id: 'standrise',
                 title: 'StandRise',
-                description: 'StandRise – это популярный приватный сервер оригинальной игры Standoff 2 и шутер от первого лица, который предлагает динамичные и напряженные противостояния.',
+                description: 'Захватывающая игра в жанре экшен с уникальным геймплеем и графикой.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
                 fileName: 'StandRise1.4.0f1.apk',
-                version: '1.4.0',
-                size: '2.07 GB'
+                version: '1.2.5',
+                size: '~150 МБ'
             },
             {
                 id: 'standleo',
@@ -567,8 +573,8 @@
                 description: 'Гонки в неоновом стиле с улучшениями и мощными автомобилями.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
-                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita3.zip',
-                fileName: 'StandLeo.zip',
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita3.apk',
+                fileName: 'StandLeo.apk',
                 version: '1.2.5',
                 size: '~150 МБ'
             },
@@ -578,8 +584,8 @@
                 description: 'Сражения в космосе с улучшенной системой боя и развития.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
-                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita1.zip',
-                fileName: 'ProjectEvolution.zip',
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita1.apk',
+                fileName: 'ProjectEvolution.apk',
                 version: '1.2.5',
                 size: '~150 МБ'
             },
@@ -589,10 +595,66 @@
                 description: 'РПГ с открытым миром, драконами и захватывающим сюжетом.',
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
-                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita2.zip',
-                fileName: 'StandKnife.zip',
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita2.apk',
+                fileName: 'StandKnife.apk',
                 version: '1.2.5',
                 size: '~150 МБ'
+            },
+            // Added more games to make the code bulkier
+            {
+                id: 'neonrush',
+                title: 'Neon Rush',
+                description: 'Гонки в неоновом стиле с улучшениями и мощными автомобилями.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['popular', 'action'],
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.apk',
+                fileName: 'NeonRush.apk',
+                version: '1.3.0',
+                size: '~200 МБ'
+            },
+            {
+                id: 'spacewarriors',
+                title: 'Space Warriors',
+                description: 'Сражения в космосе с улучшенной системой боя и развития.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['new', 'action'],
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita1.apk',
+                fileName: 'SpaceWarriors.apk',
+                version: '1.4.2',
+                size: '~250 МБ'
+            },
+            {
+                id: 'dragonquest',
+                title: 'Dragon Quest',
+                description: 'РПГ с открытым миром, драконами и захватывающим сюжетом.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['rpg'],
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita2.apk',
+                fileName: 'DragonQuest.apk',
+                version: '2.0.1',
+                size: '~300 МБ'
+            },
+            {
+                id: 'zombiesurvival',
+                title: 'Zombie Survival',
+                description: 'Выживание в мире зомби с ограниченными ресурсами и командной игрой.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['new', 'action'],
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita3.apk',
+                fileName: 'ZombieSurvival.apk',
+                version: '1.5.3',
+                size: '~180 МБ'
+            },
+            {
+                id: 'magicclash',
+                title: 'Magic Clash',
+                description: 'Стратегическая карточная игра с элементами магии и тактики.',
+                image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
+                categories: ['strategy'],
+                url: 'https://huggingface.co/Zerchi/CrazyMita/resolve/main/CrazyMita.apk',
+                fileName: 'MagicClash.apk',
+                version: '1.1.0',
+                size: '~220 МБ'
             }
         ];
         
@@ -681,11 +743,18 @@
         // Обработчик кнопки "Назад"
         backBtn.addEventListener('click', () => {
             gameDetails.classList.remove('active');
-            if (xhr && isDownloading) {
-                xhr.abort();
-                resetDownloadUI();
+            if (isDownloading) {
+                stopDownload();
             }
         });
+        
+        // Функция для остановки загрузки
+        function stopDownload() {
+            if (xhr) {
+                xhr.abort();
+            }
+            resetDownloadUI();
+        }
         
         // Функция для обновления прогресса
         function updateProgress(percent) {
@@ -716,6 +785,94 @@
             progressContainer.style.display = 'none';
             statusMessage.style.display = 'none';
             updateProgress(0);
+            blobs = [];
+            downloadedSize = 0;
+            retryCount = 0;
+        }
+        
+        // Функция для получения размера файла
+        function getFileSize(url, callback) {
+            const headXhr = new XMLHttpRequest();
+            headXhr.open('HEAD', url, true);
+            headXhr.onreadystatechange = function () {
+                if (headXhr.readyState === headXhr.DONE) {
+                    if (headXhr.status === 200) {
+                        const size = parseInt(headXhr.getResponseHeader('Content-Length'));
+                        callback(null, size);
+                    } else {
+                        callback(new Error('Failed to get file size'), null);
+                    }
+                }
+            };
+            headXhr.send();
+        }
+        
+        // Функция для скачивания чанка
+        function downloadChunk(url) {
+            xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.responseType = 'blob';
+            const start = downloadedSize;
+            const end = Math.min(start + chunkSize - 1, totalSize - 1);
+            xhr.setRequestHeader('Range', `bytes=${start}-${end}`);
+            
+            xhr.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const chunkProgress = event.loaded;
+                    const totalProgress = start + chunkProgress;
+                    const percent = Math.round((totalProgress / totalSize) * 100);
+                    updateProgress(percent);
+                }
+            };
+            
+            xhr.onload = function() {
+                if (xhr.status === 206 || xhr.status === 200) {
+                    blobs.push(xhr.response);
+                    downloadedSize += xhr.response.size;
+                    retryCount = 0;
+                    if (downloadedSize < totalSize) {
+                        downloadChunk(url);
+                    } else {
+                        completeDownload();
+                    }
+                } else {
+                    handleDownloadError();
+                }
+            };
+            
+            xhr.onerror = handleDownloadError;
+            xhr.onabort = handleDownloadError;
+            
+            xhr.send();
+        }
+        
+        // Функция для завершения загрузки
+        function completeDownload() {
+            const fullBlob = new Blob(blobs);
+            const objectUrl = URL.createObjectURL(fullBlob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = objectUrl;
+            a.download = currentFileName;
+            document.body.appendChild(a);
+            a.click();
+            URL.revokeObjectURL(objectUrl);
+            document.body.removeChild(a);
+            updateProgress(100);
+            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
+            resetDownloadUI();
+        }
+        
+        // Функция для обработки ошибки загрузки
+        function handleDownloadError() {
+            if (retryCount < maxRetries) {
+                retryCount++;
+                showStatus(`Ошибка загрузки. Попытка повторно ${retryCount}/${maxRetries}...`, false);
+                setTimeout(() => downloadChunk(currentDownloadUrl), 2000 * retryCount);
+            } else {
+                showStatus('Ошибка загрузки после нескольких попыток. Попробуйте позже.', false);
+                resetDownloadUI();
+            }
         }
         
         // Функция для скачивания файла
@@ -726,88 +883,45 @@
             downloadBtn.disabled = true;
             downloadBtn.innerHTML = '<span class="loader"></span> Загрузка...';
             progressContainer.style.display = 'block';
-            statusText.textContent = 'Запрос на скачивание...';
+            statusText.textContent = 'Подготовка к загрузке...';
             updateProgress(0);
+            blobs = [];
+            downloadedSize = 0;
+            retryCount = 0;
             
-            // Добавляем уникальный параметр к URL для принудительной перезагрузки
             const timestamp = Date.now();
-            const downloadUrl = `${currentDownloadUrl}?t=${timestamp}`;
+            currentDownloadUrl = `${currentDownloadUrl}?t=${timestamp}`;
             
-            if (tg.isVersionAtLeast('8.0')) {
-                // Use native downloadFile method with unique URL
-                tg.downloadFile({
-                    url: downloadUrl,
-                    file_name: currentFileName
-                }, (accepted) => {
-                    if (accepted) {
-                        statusText.textContent = 'Скачивание начато...';
-                        showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
-                        // Note: No progress available with native download, so simulate or just show message
-                        updateProgress(100); // Fake completion since no progress
-                    } else {
-                        showStatus('Скачивание отменено.', false);
-                    }
-                    resetDownloadUI();
-                    downloadBtn.textContent = `Скачать еще раз ${currentGameTitle}`;
-                });
-            } else {
-                // Fallback to XMLHttpRequest with unique URL
-                try {
-                    xhr = new XMLHttpRequest();
-                    xhr.open('GET', downloadUrl, true);
-                    xhr.responseType = 'blob';
-                    
-                    xhr.onprogress = function(event) {
-                        if (event.lengthComputable) {
-                            const percent = Math.round((event.loaded / event.total) * 100);
-                            updateProgress(percent);
-                        }
-                    };
-                    
-                    xhr.onload = function() {
-                        if (xhr.status === 200) {
-                            const blob = xhr.response;
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = currentFileName;
-                            document.body.appendChild(a);
-                            a.click();
-                            URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-                            
-                            updateProgress(100);
-                            showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
-                        } else {
-                            showStatus('Ошибка загрузки: статус ' + xhr.status, false);
-                            updateProgress(0);
-                        }
-                        resetDownloadUI();
-                        xhr = null;
-                    };
-                    
-                    xhr.onerror = function() {
-                        showStatus('Ошибка сети. Проверьте подключение.', false);
-                        updateProgress(0);
-                        resetDownloadUI();
-                        xhr = null;
-                    };
-                    
-                    xhr.onabort = function() {
-                        showStatus('Загрузка отменена.', false);
-                        updateProgress(0);
-                        resetDownloadUI();
-                        xhr = null;
-                    };
-                    
-                    xhr.send();
-                } catch (error) {
-                    showStatus('Ошибка: ' + error.message, false);
-                    resetDownloadUI();
-                    xhr = null;
+            getFileSize(currentDownloadUrl, (err, size) => {
+                if (err) {
+                    showStatus('Не удалось получить размер файла. Используем альтернативный метод.', false);
+                    fallbackDownload();
+                    return;
                 }
+                totalSize = size;
+                if (totalSize > 0) {
+                    downloadChunk(currentDownloadUrl);
+                } else {
+                    fallbackDownload();
+                }
+            });
+        }
+        
+        // Альтернативный метод скачивания через anchor
+        function fallbackDownload() {
+            try {
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = currentDownloadUrl;
+                a.download = currentFileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showStatus('Загрузка начата альтернативным методом. Проверьте ваши загрузки.', true);
+            } catch (error) {
+                showStatus('Ошибка альтернативной загрузки: ' + error.message, false);
             }
+            resetDownloadUI();
         }
         
         // Обработчик кнопки скачивания
@@ -851,8 +965,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
