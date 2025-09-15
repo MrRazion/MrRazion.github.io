@@ -327,17 +327,6 @@
             display: block;
         }
         
-        .duplicate-warning {
-            background: rgba(255, 59, 48, 0.2);
-            border: 1px solid #ff3b30;
-            border-radius: 12px;
-            padding: 12px;
-            margin-top: 15px;
-            font-size: 14px;
-            color: #ff3b30;
-            text-align: center;
-        }
-        
         .footer {
             background: var(--tg-theme-secondary-bg-color, #1c1c1c);
             border-radius: 16px;
@@ -494,9 +483,6 @@
                 </div>
                 
                 <div class="download-section">
-                    <div class="duplicate-warning">
-                        Внимание: Если вы хотите скачать дубликат файла, удалите старый файл. Но если это обновление файла, вы сможете скачать его без удаления, поскольку оно не считается дубликатом.
-                    </div>
                     <div class="progress-container" id="progress-container">
                         <div class="progress-info">
                             <span class="progress-text">Статус: <span id="status-text">Готов к загрузке</span></span>
@@ -571,7 +557,7 @@
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'StandRise (tg_@Plugg_So2_bot).apk',
+                fileName: 'StandRise.apk',
                 version: '1.2.5',
                 size: '~150 МБ'
             },
@@ -582,7 +568,7 @@
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'StandLeo (tg_@Plugg_So2_bot).apk',
+                fileName: 'StandLeo.apk',
                 version: '1.2.5',
                 size: '~150 МБ'
             },
@@ -593,7 +579,7 @@
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'ProjectEvolution (tg_@Plugg_So2_bot).apk',
+                fileName: 'ProjectEvolution.apk',
                 version: '1.2.5',
                 size: '~150 МБ'
             },
@@ -604,7 +590,7 @@
                 image: 'https://avatars.mds.yandex.net/i?id=593ac428542177958e16141c14317dff_l-5107508-images-thumbs&n=13',
                 categories: ['popular', 'action'],
                 url: 'https://huggingface.co/Zerchi/test/resolve/main/StandRise1.4.0f1.apk',
-                fileName: 'StandKnife (tg_@Plugg_So2_bot).apk',
+                fileName: 'StandKnife.apk',
                 version: '1.2.5',
                 size: '~150 МБ'
             }
@@ -747,18 +733,20 @@
             const timestamp = Date.now();
             const downloadUrl = `${currentDownloadUrl}?t=${timestamp}`;
             
+            // Добавляем уникальный идентификатор к имени файла для избежания конфликтов с существующими файлами
+            const uniqueFileName = currentFileName.replace('.apk', `_${timestamp}.apk`);
+            
             if (tg.isVersionAtLeast('8.0')) {
-                // Use native downloadFile method with unique URL
+                // Use native downloadFile method with unique URL and file name
                 tg.downloadFile({
                     url: downloadUrl,
-                    file_name: `Downloads/plprivates/${currentFileName}`
+                    file_name: uniqueFileName
                 }, (accepted) => {
                     if (accepted) {
                         statusText.textContent = 'Скачивание начато...';
                         showStatus('Скачивание файла запущено. Проверьте уведомления или загрузки в Telegram.', true);
                         // Note: No progress available with native download, so simulate or just show message
                         updateProgress(100); // Fake completion since no progress
-                        showStatus(`Файл скачан в папку Downloads/plprivates/${currentFileName}.`, true);
                     } else {
                         showStatus('Скачивание отменено.', false);
                     }
@@ -781,12 +769,12 @@
                     
                     xhr.onload = function() {
                         if (xhr.status === 200) {
-                            const blob = xhr.response;
+                            const blob = new Blob([xhr.response], { type: 'application/vnd.android.package-archive' });
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement('a');
                             a.style.display = 'none';
                             a.href = url;
-                            a.download = currentFileName;
+                            a.download = uniqueFileName;
                             document.body.appendChild(a);
                             a.click();
                             URL.revokeObjectURL(url);
@@ -794,7 +782,6 @@
                             
                             updateProgress(100);
                             showStatus('Файл успешно скачан! Проверьте ваши загрузки.', true);
-                            showStatus(`Файл скачан в папку Downloads/plprivates/${currentFileName}.`, true);
                         } else {
                             showStatus('Ошибка загрузки: статус ' + xhr.status, false);
                             updateProgress(0);
