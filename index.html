@@ -516,8 +516,8 @@
         </div>
         
         <div class="tabs">
-            <div class="tab active" data-tab="all">Privatki</div>
-            <div class="tab" data-tab="popular">Privatki on Pc</div>
+            <div class="tab active" data-tab="all">ПРИВАТКИ</div>
+            <div class="tab" data-tab="popular">ПРИВАТКИ ДЛЯ ПК</div>
         </div>
         
         <div class="tab-content active" id="all-tab">
@@ -729,7 +729,7 @@
                 currentDownloadUrl = game.url;
                 currentFileName = game.fileName;
                 currentGameTitle = game.title;
-                downloadBtn.textContent = `Скачать ${game.title}`;
+                downloadBtn.textContent = 'Скачать';
                 gameDetails.classList.add('active');
             } else {
                 tg.showPopup({
@@ -804,7 +804,7 @@
         function resetDownloadUI() {
             isDownloading = false;
             downloadBtn.disabled = false;
-            downloadBtn.textContent = `Скачать ${currentGameTitle}`;
+            downloadBtn.textContent = 'Скачать';
             progressContainer.style.display = 'none';
             statusMessage.style.display = 'none';
             updateProgress(0);
@@ -848,7 +848,7 @@
                                         updateProgress(Math.min(percent, 100));
                                         if (percent >= 100) {
                                             clearInterval(recoveryInterval);
-                                            showStatus('Скачивание завершено. Файл проверен и готов к установке.', true);
+                                            showStatus('Проверка завершена. Файл проверен и готов к установке.', true);
                                         }
                                     }, 50); // Adjust speed for recovery phase
                                 }, 1000); // Pause for 1 second at 50% for "check"
@@ -859,7 +859,7 @@
                         updateProgress(0);
                     }
                     resetDownloadUI();
-                    downloadBtn.textContent = `Скачать еще раз ${currentGameTitle}`;
+                    downloadBtn.textContent = 'Скачать еще раз';
                 });
             } else {
                 // Fallback to XMLHttpRequest with unique URL and basic integrity simulation
@@ -891,7 +891,7 @@
                                 document.body.removeChild(a);
                                 
                                 updateProgress(100);
-                                showStatus('Файл успешно скачан и проверен! Готов к безопасной установке.', true);
+                                showStatus('Файл успешно проверен. Готов к безопасной установке.', true);
                             }, 1500); // Simulate check delay
                         } else {
                             showStatus('Ошибка загрузки: статус ' + xhr.status + '. Файл может быть поврежден.', false);
