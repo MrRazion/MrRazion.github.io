@@ -1220,7 +1220,7 @@
                             Для авторизации нажмите на кнопку ниже
                         </div>
                         <div class="plugg-auth-button-container" id="plugg-auth-button-container">
-                            <a href="https://t.me/plugg_so2_bot?start=login" class="plugg-auth-button" id="plugg-auth-button">Авторизоваться через PLUGG ID</a>
+                            <a href="https://t.me/plugg_so2_bot?start=login" class="plugg-auth-button" id="plugg-auth-button">Авторизоваться через Telegram</a>
                         </div>
                     </div>
                 </div>
@@ -2092,80 +2092,36 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const startapp = urlParams.get('startapp');
                 
-                if (startapp) {
-                    // Получаем пользователя по startapp коду
+                if (startapp && startapp.startsWith('accounton_')) {
+                    // Извлекаем юзернейм из startapp кода
+                    const username = startapp.replace('accounton_', '');
+                    
+                    // Получаем список пользователей
                     const users = JSON.parse(localStorage.getItem('plugg_users') || '[]');
-                    const user = users.find(u => u.startappCode === startapp);
+                    
+                    // Ищем пользователя по юзернейму
+                    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
                     
                     if (user) {
-                        // Авторизуем пользователя
-                        localStorage.setItem('plugg_user', JSON.stringify(user));
-                        currentUser = user;
-                        updateProfileUI();
-                        
-                        // Удаляем использованный код из списка
-                        const newUserList = users.filter(u => u.startappCode !== startapp);
-                        localStorage.setItem('plugg_users', JSON.stringify(newUserList));
-                        
-                        // Убираем параметр startapp из URL
-                        const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
-                        window.history.pushState({}, '', newUrl);
-                        
-                        tg.showAlert('Вы успешно вошли в аккаунт!');
-                    } else {
-                        // Проверяем, не был ли код использован недавно
-                        let recentCodes = JSON.parse(localStorage.getItem('plugg_recent_startapp_codes') || '[]');
-                        recentCodes = recentCodes.filter(code => Date.now() - code.timestamp < 30000); // Очищаем старые записи (старше 30 секунд)
-                        
-                        const recentCode = recentCodes.find(rc => rc.code === startapp);
-                        
-                        if (recentCode) {
-                            // Код был использован недавно, но пользователь еще не авторизован
-                            // Возможно, это первый заход после регистрации
-                            const user = getTempUserByStartapp(startapp);
-                            if (user) {
-                                // Сохраняем пользователя в постоянное хранилище
-                                let allUsers = JSON.parse(localStorage.getItem('plugg_users') || '[]');
-                                allUsers.push(user);
-                                localStorage.setItem('plugg_users', JSON.stringify(allUsers));
-                                localStorage.setItem('plugg_user', JSON.stringify(user));
-                                currentUser = user;
-                                updateProfileUI();
-                                
-                                // Удаляем временные данные
-                                removeTempUser(startapp);
-                                
-                                // Убираем параметр startapp из URL
-                                const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
-                                window.history.pushState({}, '', newUrl);
-                                
-                                tg.showAlert('Вы успешно вошли в аккаунт!');
-                            } else {
-                                // Показываем сообщение о том, что нужно обновить страницу
-                                tg.showAlert('Ссылка уже использована. Пожалуйста, обновите страницу.');
-                            }
+                        // Проверяем, соответствует ли текущий Telegram ID пользователю
+                        if (user.telegram_id == tg.initDataUnsafe?.user?.id) {
+                            // Авторизуем пользователя
+                            localStorage.setItem('plugg_user', JSON.stringify(user));
+                            currentUser = user;
+                            updateProfileUI();
+                            
+                            // Убираем параметр startapp из URL
+                            const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                            window.history.pushState({}, '', newUrl);
+                            
+                            tg.showAlert('Вы успешно вошли в аккаунт!');
                         } else {
-                            // Сохраняем информацию о недавно использованном коде
-                            recentCodes.push({
-                                code: startapp,
-                                timestamp: Date.now()
-                            });
-                            localStorage.setItem('plugg_recent_startapp_codes', JSON.stringify(recentCodes));
+                            tg.showAlert('Ошибка авторизации. Этот аккаунт привязан к другому Telegram-аккаунту.');
                         }
+                    } else {
+                        tg.showAlert('Неверный или просроченный код авторизации.');
                     }
                 }
-            }
-            
-            // Функция для временного хранения пользователей во время регистрации
-            function getTempUserByStartapp(startapp) {
-                const tempUsers = JSON.parse(localStorage.getItem('plugg_temp_users') || '[]');
-                return tempUsers.find(u => u.startappCode === startapp);
-            }
-            
-            function removeTempUser(startapp) {
-                let tempUsers = JSON.parse(localStorage.getItem('plugg_temp_users') || '[]');
-                tempUsers = tempUsers.filter(u => u.startappCode !== startapp);
-                localStorage.setItem('plugg_temp_users', JSON.stringify(tempUsers));
             }
             
             // Инициализация при загрузке
