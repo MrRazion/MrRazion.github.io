@@ -668,12 +668,63 @@
             font-weight: 600;
             margin-bottom: 5px;
             color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .verified-badge {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--success-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        .verified-badge svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+        }
+        .verified-tooltip {
+            position: absolute;
+            top: -40px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .verified-tooltip.show {
+            opacity: 1;
         }
         .profile-username {
             text-align: center;
             font-size: 14px;
             color: var(--text-secondary);
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .badge-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .badge-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .profile-bio {
             text-align: center;
@@ -686,6 +737,7 @@
             display: flex;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 15px;
+            gap: 0;
         }
         .profile-tab {
             flex: 1;
@@ -693,12 +745,27 @@
             padding: 12px 0;
             cursor: pointer;
             font-weight: 500;
+            font-size: 15px;
             color: var(--text-secondary);
+            transition: var(--transition);
+            position: relative;
+        }
+        .profile-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
             transition: var(--transition);
         }
         .profile-tab.active {
             color: var(--accent-color);
-            border-bottom: 2px solid var(--accent-color);
+        }
+        .profile-tab.active::after {
+            width: 80%;
         }
         .profile-content {
             padding: 0 20px 20px;
@@ -1031,6 +1098,246 @@
         .negative-space {
             padding: 0 20px;
         }
+        /* Badges styles */
+        .badges-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 10px 0;
+        }
+        .badge-item {
+            aspect-ratio: 1/1;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .badge-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .badge-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .badge-item.pinned::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path d="M9.828 8l-2.5-2.5a.5.5 0 0 1 0-.707l2.5-2.5a.5.5 0 0 1 .707 0l.646.646a.5.5 0 0 1 0 .708l-2.197 2.197 2.197 2.197a.5.5 0 0 1 0 .707l-.646.646a.5.5 0 0 1-.708 0zm-4.95.708L7.328 11.15a.5.5 0 0 1-.708 0l-.646-.647a.5.5 0 0 1 0-.707l2.197-2.197-2.197-2.197a.5.5 0 0 1 0-.707l.646-.646a.5.5 0 0 1 .708 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 0 1-.707 0z"/></svg>') no-repeat center;
+            background-size: 12px;
+            border-radius: 50%;
+        }
+        .badge-item.selected {
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+        .badge-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .badge-action-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--border-radius-sm);
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .badge-action-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        .badge-action-btn.apply {
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+        }
+        .badge-action-btn.pinned {
+            background: var(--success-color);
+            border: none;
+            color: white;
+        }
+        .badge-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-sm);
+            margin-top: 10px;
+            word-break: break-all;
+        }
+        .badge-profile svg {
+            width: 16px;
+            height: 16px;
+            color: var(--accent-color);
+        }
+        .badge-profile-copy {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        .badge-profile-copy:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .badge-profile-copied {
+            color: var(--success-color);
+            animation: flash 1s;
+        }
+        .banner-selector {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-bg);
+            z-index: 3000;
+            padding: 20px;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .banner-selector.active {
+            display: flex;
+        }
+        .banner-selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 15px;
+        }
+        .banner-selector-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .banner-selector-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .banner-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .banner-item {
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+        .banner-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .banner-item.selected::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(74, 134, 255, 0.3);
+            border: 2px solid var(--accent-color);
+        }
+        .banner-upload {
+            padding: 15px;
+            border-radius: var(--border-radius-md);
+            background: var(--card-bg);
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .banner-upload:hover {
+            background: var(--accent-color);
+            color: white;
+        }
+        .banner-upload svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 10px;
+            fill: var(--accent-color);
+        }
+        .banner-upload:hover svg {
+            fill: white;
+        }
+        .banner-preview {
+            display: none;
+            margin-top: 20px;
+        }
+        .banner-preview.active {
+            display: block;
+        }
+        .banner-preview-img {
+            width: 100%;
+            height: 150px;
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .banner-preview-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .banner-preview-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .banner-preview-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: var(--border-radius-sm);
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .banner-preview-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        .banner-preview-btn.apply {
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+        }
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
     </style>
 </head>
 <body>
@@ -1152,12 +1459,22 @@
                 </div>
                 <div class="profile-tabs">
                     <div class="profile-tab active" data-tab="library">Библиотека</div>
+                    <div class="profile-tab" data-tab="badges">Значки</div>
                     <div class="profile-tab" data-tab="settings">Настройки</div>
                 </div>
                 <div class="profile-content">
                     <div class="profile-section active" id="library-section">
                         <div class="library-grid" id="library-grid">
                             <!-- Library items will be added here -->
+                        </div>
+                    </div>
+                    <div class="profile-section" id="badges-section">
+                        <div class="badges-container" id="badges-container">
+                            <!-- Badges will be added here -->
+                        </div>
+                        <div class="badge-actions" id="badge-actions">
+                            <button class="badge-action-btn apply" id="badge-apply">Применить</button>
+                            <button class="badge-action-btn" id="badge-pin">Закрепить</button>
                         </div>
                     </div>
                     <div class="profile-section profile-settings" id="settings-section">
@@ -1194,8 +1511,49 @@
                             </div>
                             <textarea class="setting-input" id="bio-input" rows="3" placeholder="Расскажите немного о себе..."></textarea>
                         </div>
+                        <div class="setting-item">
+                            <div class="setting-label">Ссылка на ваш профиль</div>
+                            <div class="setting-value" id="profile-link">
+                                <span id="profile-link-display">https://t.me/Plugg_So2_bot?startapp=none</span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
                         <button class="logout-btn" id="logout-btn">Выйти из аккаунта</button>
                     </div>
+                </div>
+            </div>
+        </div>
+        <!-- Banner Selector -->
+        <div class="banner-selector" id="banner-selector">
+            <div class="banner-selector-header">
+                <div class="banner-selector-title">Выберите баннер</div>
+                <div class="banner-selector-close" id="banner-selector-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6 6 18"></path>
+                        <path d="m6 6 12 12"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="banner-upload" id="banner-upload">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="9" cy="9" r="2"></circle>
+                    <path d="m21 15-3.086-3.086a2 2 0 0 1-2.828 0L6 21"></path>
+                </svg>
+                <div>Выбрать из галереи</div>
+            </div>
+            <div class="banner-gallery" id="banner-gallery">
+                <!-- Gallery items will be added here -->
+            </div>
+            <div class="banner-preview" id="banner-preview">
+                <div class="banner-preview-img">
+                    <img id="banner-preview-img" src="" alt="Preview">
+                </div>
+                <div class="banner-preview-actions">
+                    <button class="banner-preview-btn" id="banner-cancel">Отмена</button>
+                    <button class="banner-preview-btn apply" id="banner-apply">Применить</button>
                 </div>
             </div>
         </div>
@@ -1215,18 +1573,18 @@
                             <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
                         </div>
                         <h3 class="plugg-auth-title">PLUGG ID</h3>
-                        <p class="plugg-auth-description">Plugg ID - это небольшая маленькая система авторизации которая проходит через телеграм бота.</p>
+                        <p class="plugg-auth-description">Простая и безопасная авторизация через Telegram.</p>
                         <div class="plugg-auth-status" id="plugg-auth-status">
-                            Для авторизации нажмите на кнопку ниже
+                            Для входа нажмите на кнопку ниже
                         </div>
                         <div class="plugg-auth-button-container" id="plugg-auth-button-container">
-                            <a href="https://t.me/plugg_so2_bot?start=login" class="plugg-auth-button" id="plugg-auth-button">Авторизоваться через Telegram</a>
+                            <button class="plugg-auth-button" id="telegram-auth-button">Войти через Telegram</button>
                         </div>
                     </div>
                 </div>
                 <div class="registration-progress" id="registration-progress">
                     <div class="loader"></div>
-                    <div class="progress-text">Регистрируем ваш аккаунт...</div>
+                    <div class="progress-text">Авторизация через Telegram...</div>
                     <div class="progress-subtext">Пожалуйста, подождите</div>
                 </div>
             </div>
@@ -1275,7 +1633,7 @@
             const authModal = document.getElementById('auth-modal');
             const pluggAuthStatus = document.getElementById('plugg-auth-status');
             const pluggAuthButtonContainer = document.getElementById('plugg-auth-button-container');
-            const pluggAuthButton = document.getElementById('plugg-auth-button');
+            const telegramAuthButton = document.getElementById('telegram-auth-button');
             const registrationProgress = document.getElementById('registration-progress');
             const profileName = document.getElementById('profile-name');
             const profileUsername = document.getElementById('profile-username');
@@ -1286,6 +1644,7 @@
             const profileEdit = document.getElementById('profile-edit');
             const profileTabs = document.querySelectorAll('.profile-tab');
             const librarySection = document.getElementById('library-section');
+            const badgesSection = document.getElementById('badges-section');
             const settingsSection = document.getElementById('settings-section');
             const editName = document.getElementById('edit-name');
             const editUsername = document.getElementById('edit-username');
@@ -1306,6 +1665,20 @@
             const downloadedSize = document.getElementById('downloaded-size');
             const downloadSpeed = document.getElementById('download-speed');
             const pingValue = document.getElementById('ping-value');
+            const profileLink = document.getElementById('profile-link');
+            const profileLinkDisplay = document.getElementById('profile-link-display');
+            const badgesContainer = document.getElementById('badges-container');
+            const badgeActions = document.getElementById('badge-actions');
+            const badgeApplyBtn = document.getElementById('badge-apply');
+            const badgePinBtn = document.getElementById('badge-pin');
+            const bannerSelector = document.getElementById('banner-selector');
+            const bannerSelectorClose = document.getElementById('banner-selector-close');
+            const bannerGallery = document.getElementById('banner-gallery');
+            const bannerUpload = document.getElementById('banner-upload');
+            const bannerPreview = document.getElementById('banner-preview');
+            const bannerPreviewImg = document.getElementById('banner-preview-img');
+            const bannerCancelBtn = document.getElementById('banner-cancel');
+            const bannerApplyBtn = document.getElementById('banner-apply');
             
             // Переменные для отслеживания состояния
             let isDownloading = false;
@@ -1320,6 +1693,8 @@
             let totalBytes = 0;
             let isVisualizerActive = false;
             let visualizerInterval = null;
+            let selectedBadge = null;
+            let selectedBannerFile = null;
             
             // Создаем аудио визуализатор
             function createAudioVisualizer() {
@@ -1418,14 +1793,224 @@
                     !usernameDisplay || !bioDisplay || !libraryGrid) return;
                     
                 if (currentUser) {
-                    profileName.textContent = currentUser.name;
-                    profileUsername.textContent = `@${currentUser.username}`;
+                    // Проверяем верификацию пользователя
+                    const isVerified = isUserVerified(currentUser.telegram_id);
+                    
+                    // Обновляем имя
+                    let nameHTML = currentUser.first_name + (currentUser.last_name ? ' ' + currentUser.last_name : '');
+                    
+                    // Добавляем галочку верификации, если пользователь верифицирован
+                    if (isVerified) {
+                        nameHTML += `
+                            <div class="verified-badge" id="verified-badge">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+                                </svg>
+                                <div class="verified-tooltip" id="verified-tooltip">
+                                    ${getVerifiedDescription(currentUser.telegram_id, currentUser.username)}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Обновляем имя с галочкой верификации
+                    profileName.innerHTML = nameHTML;
+                    nameDisplay.textContent = currentUser.first_name + (currentUser.last_name ? ' ' + currentUser.last_name : '');
+                    
+                    // Обновляем юзернейм
+                    const usernameText = currentUser.username ? `@${currentUser.username}` : 'Не указан';
+                    
+                    // Добавляем значки к юзернейму
+                    let badgesHTML = '';
+                    if (currentUser.badges && currentUser.badges.length > 0) {
+                        const activeBadge = currentUser.badges.find(b => b.active);
+                        if (activeBadge) {
+                            badgesHTML = `<div class="badge-icon"><img src="${activeBadge.image}" alt="Badge"></div>`;
+                        }
+                    }
+                    
+                    profileUsername.innerHTML = badgesHTML + usernameText;
+                    usernameDisplay.textContent = currentUser.username || 'Не указан';
+                    
+                    // Обновляем био
                     profileBio.textContent = currentUser.bio || 'Добавьте описание профиля, чтобы рассказать о себе';
-                    nameDisplay.textContent = currentUser.name;
-                    usernameDisplay.textContent = currentUser.username;
                     bioDisplay.textContent = currentUser.bio || 'Добавьте описание профиля, чтобы рассказать о себе';
+                    
+                    // Обновляем аватар
+                    if (currentUser.avatar) {
+                        profileAvatar.innerHTML = `<img src="${currentUser.avatar}" alt="Аватар">`;
+                    }
+                    
+                    // Обновляем баннер
+                    if (currentUser.banner) {
+                        bannerPlaceholder.style.backgroundImage = `url('${currentUser.banner}')`;
+                        bannerPlaceholder.style.backgroundSize = 'cover';
+                        bannerPlaceholder.style.backgroundPosition = 'center';
+                    } else {
+                        bannerPlaceholder.style.background = 'var(--accent-gradient)';
+                        bannerPlaceholder.style.backgroundSize = '';
+                        bannerPlaceholder.style.backgroundPosition = '';
+                    }
+                    
+                    // Обновляем ссылку на профиль
+                    const profileLink = currentUser.username 
+                        ? `https://t.me/Plugg_So2_bot?startapp=${currentUser.username}` 
+                        : 'https://t.me/Plugg_So2_bot?startapp=none';
+                    profileLinkDisplay.textContent = profileLink;
+                    
                     // Обновляем библиотеку
                     updateLibraryUI();
+                    
+                    // Инициализируем значки
+                    initBadges();
+                    
+                    // Добавляем обработчик для галочки верификации
+                    const verifiedBadge = document.getElementById('verified-badge');
+                    if (verifiedBadge) {
+                        const tooltip = document.getElementById('verified-tooltip');
+                        
+                        verifiedBadge.addEventListener('mouseenter', () => {
+                            if (tooltip) {
+                                tooltip.classList.add('show');
+                                setTimeout(() => {
+                                    if (tooltip) tooltip.classList.remove('show');
+                                }, 10000);
+                            }
+                        });
+                        
+                        verifiedBadge.addEventListener('mouseleave', () => {
+                            if (tooltip) tooltip.classList.remove('show');
+                        });
+                    }
+                }
+            }
+            
+            // Проверка верификации пользователя
+            function isUserVerified(telegram_id) {
+                const verifiedUsers = [
+                    { id: 5772425643, speciality: 'dev', description: 'является официальным лицом и создателем проекта' },
+                    { id: 7942740523, speciality: 'tester', description: 'является официальным тестировщиком и помощником проекта' },
+                    { id: 5507094612, speciality: 'donate', description: 'поддержал разработку проекта и получил особый значок' }
+                ];
+                
+                return verifiedUsers.some(user => user.id.toString() === telegram_id.toString());
+            }
+            
+            // Получение описания верификации
+            function getVerifiedDescription(telegram_id, username) {
+                const verifiedUsers = [
+                    { 
+                        id: 5772425643, 
+                        speciality: 'dev', 
+                        description: `${username} является официальным лицом и создателем проекта`
+                    },
+                    { 
+                        id: 7942740523, 
+                        speciality: 'tester', 
+                        description: `${username} является официальным тестировщиком и помощником проекта`
+                    },
+                    { 
+                        id: 5507094612, 
+                        speciality: 'donate', 
+                        description: `${username} поддержал разработку проекта и получил особый значок`
+                    }
+                ];
+                
+                const user = verifiedUsers.find(u => u.id.toString() === telegram_id.toString());
+                return user ? user.description : '';
+            }
+            
+            // Инициализация значков
+            function initBadges() {
+                if (!badgesContainer) return;
+                
+                // Очистка контейнера
+                badgesContainer.innerHTML = '';
+                
+                // Получаем список всех доступных значков
+                const allBadges = [
+                    {
+                        id: 'new_user',
+                        name: 'Новый пользователь',
+                        image: 'https://github.com/MrRazion/pluggbotest.github.io/blob/main/badges/status/pixel-mini-cake__b25a44ae.webp?raw=true',
+                        date: 'До 01.12.2025',
+                        description: 'Доступен всем новым аккаунтам до 1 декабря 2025 года'
+                    },
+                ];
+                
+                // Добавляем значки, доступные пользователю
+                allBadges.forEach(badge => {
+                    // Проверяем, доступен ли значок (новый пользователь доступен до 1 декабря 2025)
+                    let isAvailable = true;
+                    if (badge.id === 'new_user') {
+                        const today = new Date();
+                        const deadline = new Date('2025-12-01');
+                        isAvailable = today < deadline;
+                    }
+                    
+                    if (isAvailable) {
+                        const badgeItem = document.createElement('div');
+                        badgeItem.className = 'badge-item';
+                        badgeItem.dataset.badgeId = badge.id;
+                        
+                        // Проверяем, закреплен ли значок
+                        if (currentUser.pinned_badges && currentUser.pinned_badges.includes(badge.id)) {
+                            badgeItem.classList.add('pinned');
+                        }
+                        
+                        // Проверяем, активен ли значок
+                        if (currentUser.badges && currentUser.badges.some(b => b.id === badge.id && b.active)) {
+                            badgeItem.classList.add('selected');
+                        }
+                        
+                        badgeItem.innerHTML = `
+                            <img src="${badge.image}" alt="${badge.name}">
+                        `;
+                        
+                        badgeItem.addEventListener('click', () => {
+                            // Снимаем выделение со всех значков
+                            document.querySelectorAll('.badge-item').forEach(item => {
+                                item.classList.remove('selected');
+                            });
+                            
+                            // Выделяем текущий значок
+                            badgeItem.classList.add('selected');
+                            selectedBadge = badge;
+                            
+                            // Обновляем кнопки действий
+                            updateBadgeActions();
+                        });
+                        
+                        badgesContainer.appendChild(badgeItem);
+                    }
+                });
+            }
+            
+            // Обновление кнопок действий для значков
+            function updateBadgeActions() {
+                if (!badgeApplyBtn || !badgePinBtn || !selectedBadge) return;
+                
+                // По умолчанию кнопка "Применить" активна
+                badgeApplyBtn.classList.remove('pinned');
+                badgeApplyBtn.classList.add('apply');
+                badgeApplyBtn.textContent = 'Применить';
+                
+                // Проверяем, закреплен ли значок
+                const isPinned = currentUser.pinned_badges && currentUser.pinned_badges.includes(selectedBadge.id);
+                
+                if (isPinned) {
+                    badgePinBtn.classList.add('pinned');
+                    badgePinBtn.textContent = 'Открепить';
+                } else {
+                    badgePinBtn.classList.remove('pinned');
+                    badgePinBtn.textContent = 'Закрепить';
+                }
+                
+                // Проверяем, активен ли значок
+                const isActive = currentUser.badges && currentUser.badges.some(b => b.id === selectedBadge.id && b.active);
+                
+                if (isActive) {
+                    badgeApplyBtn.textContent = 'Снять';
                 }
             }
             
@@ -1898,7 +2483,7 @@
                 downloadBtn.addEventListener('click', downloadFile);
             }
             
-            // ========== ИСПРАВЛЕНИЯ ДЛЯ ПРОФИЛЯ И АУТЕНТИФИКАЦИИ ==========
+            // ========== НОВАЯ СИСТЕМА АВТОРИЗАЦИИ ЧЕРЕЗ TELEGRAM ==========
             
             // Обработчик кнопки профиля
             if (profileBtn) {
@@ -1908,6 +2493,90 @@
                     } else {
                         profileModal.classList.add('active');
                     }
+                });
+            }
+            
+            // Обработчик кнопки авторизации через Telegram
+            if (telegramAuthButton) {
+                telegramAuthButton.addEventListener('click', () => {
+                    // Показываем индикатор загрузки
+                    authModal.classList.remove('active');
+                    registrationProgress.style.display = 'block';
+                    
+                    // Используем данные из Telegram WebApp
+                    setTimeout(() => {
+                        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                            const user = tg.initDataUnsafe.user;
+                            
+                            // Создаем объект пользователя
+                            const userData = {
+                                telegram_id: user.id,
+                                first_name: user.first_name,
+                                last_name: user.last_name || '',
+                                username: user.username || '',
+                                auth_date: user.auth_date || Math.floor(Date.now() / 1000),
+                                avatar: user.photo_url || '',
+                                banner: '',
+                                bio: 'Любитель приваток для Standoff 2',
+                                library: [],
+                                badges: [],
+                                pinned_badges: [],
+                                created_at: new Date().toISOString()
+                            };
+                            
+                            // Добавляем значок новичка, если пользователь новый
+                            const today = new Date();
+                            const deadline = new Date('2025-12-01');
+                            if (today < deadline) {
+                                userData.badges.push({
+                                    id: 'new_user',
+                                    active: true
+                                });
+                            }
+                            
+                            // Сохраняем пользователя
+                            localStorage.setItem('plugg_user', JSON.stringify(userData));
+                            currentUser = userData;
+                            
+                            // Обновляем интерфейс
+                            updateProfileUI();
+                            
+                            // Показываем профиль
+                            registrationProgress.style.display = 'none';
+                            profileModal.classList.add('active');
+                            
+                            tg.showAlert('Вы успешно вошли в систему PLUGG ID через Telegram!');
+                        } else {
+                            registrationProgress.style.display = 'none';
+                            authModal.classList.add('active');
+                            tg.showAlert('Не удалось получить данные из Telegram. Пожалуйста, попробуйте снова.');
+                        }
+                    }, 1000);
+                });
+            }
+            
+            // Обработчик кнопки выхода
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    // Сохраняем только библиотеку и другие данные, которые должны сохраняться
+                    const library = currentUser ? currentUser.library : [];
+                    
+                    // Удаляем данные пользователя, кроме библиотеки
+                    localStorage.removeItem('plugg_user');
+                    
+                    // Создаем временный объект для сохранения библиотеки
+                    const tempUser = {
+                        library: library
+                    };
+                    localStorage.setItem('plugg_temp_user', JSON.stringify(tempUser));
+                    
+                    currentUser = null;
+                    
+                    // Закрываем модальное окно
+                    if (profileModal) profileModal.classList.remove('active');
+                    
+                    // Показываем уведомление
+                    tg.showAlert('Вы вышли из аккаунта');
                 });
             }
             
@@ -1932,11 +2601,17 @@
                     tab.addEventListener('click', () => {
                         profileTabs.forEach(t => t.classList.remove('active'));
                         tab.classList.add('active');
-                        if (tab.dataset.tab === 'library' && librarySection && settingsSection) {
+                        if (tab.dataset.tab === 'library' && librarySection && badgesSection && settingsSection) {
                             librarySection.style.display = 'block';
+                            badgesSection.style.display = 'none';
                             settingsSection.style.display = 'none';
-                        } else if (settingsSection && librarySection) {
+                        } else if (tab.dataset.tab === 'badges' && librarySection && badgesSection && settingsSection) {
                             librarySection.style.display = 'none';
+                            badgesSection.style.display = 'block';
+                            settingsSection.style.display = 'none';
+                        } else if (tab.dataset.tab === 'settings' && librarySection && badgesSection && settingsSection) {
+                            librarySection.style.display = 'none';
+                            badgesSection.style.display = 'none';
                             settingsSection.style.display = 'block';
                         }
                     });
@@ -1954,9 +2629,12 @@
                 
                 nameInput.addEventListener('blur', () => {
                     if (nameInput.value.trim() !== '' && currentUser) {
-                        currentUser.name = nameInput.value.trim();
+                        // Разделяем имя и фамилию
+                        const nameParts = nameInput.value.trim().split(' ');
+                        currentUser.first_name = nameParts[0];
+                        currentUser.last_name = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+                        
                         localStorage.setItem('plugg_user', JSON.stringify(currentUser));
-                        nameDisplay.textContent = currentUser.name;
                         updateProfileUI();
                     }
                     nameInput.style.display = 'none';
@@ -1978,58 +2656,24 @@
             // Обработчик редактирования юзернейма
             if (editUsername && usernameInput && usernameDisplay) {
                 editUsername.addEventListener('click', () => {
-                    usernameInput.value = usernameDisplay.textContent;
+                    // Удаляем @ если он есть
+                    const currentUsername = usernameDisplay.textContent.replace('@', '');
+                    usernameInput.value = currentUsername;
                     usernameInput.style.display = 'block';
                     usernameDisplay.style.display = 'none';
                     editUsername.style.display = 'none';
                 });
                 
-                usernameInput.addEventListener('input', () => {
-                    const username = usernameInput.value.trim();
-                    if (username === '' || !usernameAvailable || !usernameUnavailable) return;
-                    
-                    if (isUsernameUnique(username) || (currentUser && username === currentUser.username)) {
-                        usernameAvailable.style.display = 'block';
-                        usernameUnavailable.style.display = 'none';
-                    } else {
-                        usernameAvailable.style.display = 'none';
-                        usernameUnavailable.style.display = 'block';
-                    }
-                });
-                
                 usernameInput.addEventListener('blur', () => {
-                    const username = usernameInput.value.trim();
-                    if (username !== '' && currentUser) {
-                        if (isUsernameUnique(username) || username === currentUser.username) {
-                            // Проверяем, не прошло ли 7 дней с последнего изменения
-                            const lastChange = currentUser.lastUsernameChange || 0;
-                            const sevenDays = 7 * 24 * 60 * 60 * 1000; // 7 дней в миллисекундах
-                            if (Date.now() - lastChange >= sevenDays || !currentUser.lastUsernameChange) {
-                                // Обновляем юзернейм
-                                const oldUsername = currentUser.username;
-                                currentUser.username = username;
-                                currentUser.lastUsernameChange = Date.now();
-                                // Обновляем в списке пользователей
-                                const users = JSON.parse(localStorage.getItem('plugg_users') || '[]');
-                                const userIndex = users.findIndex(u => u.id === currentUser.id);
-                                if (userIndex !== -1) {
-                                    users[userIndex].username = username;
-                                    users[userIndex].lastUsernameChange = Date.now();
-                                }
-                                localStorage.setItem('plugg_users', JSON.stringify(users));
-                                localStorage.setItem('plugg_user', JSON.stringify(currentUser));
-                                usernameDisplay.textContent = currentUser.username;
-                                updateProfileUI();
-                                tg.showAlert('Юзернейм успешно обновлен!');
-                            } else {
-                                const daysLeft = Math.ceil((sevenDays - (Date.now() - lastChange)) / (24 * 60 * 60 * 1000));
-                                tg.showAlert(`Вы можете изменить юзернейм только раз в 7 дней. Пожалуйста, подождите еще ${daysLeft} дней.`);
-                                usernameInput.value = currentUser.username;
-                            }
-                        } else if (username !== '') {
-                            tg.showAlert('Этот юзернейм уже занят. Пожалуйста, выберите другой.');
-                            usernameInput.value = currentUser.username;
-                        }
+                    if (usernameInput.value.trim() !== '' && currentUser) {
+                        currentUser.username = usernameInput.value.trim();
+                        
+                        // Обновляем ссылку на профиль
+                        const profileLink = `https://t.me/Plugg_So2_bot?startapp=${currentUser.username}`;
+                        profileLinkDisplay.textContent = profileLink;
+                        
+                        localStorage.setItem('plugg_user', JSON.stringify(currentUser));
+                        updateProfileUI();
                     }
                     usernameInput.style.display = 'none';
                     usernameDisplay.style.display = 'block';
@@ -2071,63 +2715,241 @@
                 });
             }
             
-            // Обработчик кнопки выхода
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    localStorage.removeItem('plugg_user');
-                    currentUser = null;
-                    if (profileModal) profileModal.classList.remove('active');
-                    tg.showAlert('Вы вышли из аккаунта');
+            // Обработчик копирования ссылки на профиль
+            if (profileLink) {
+                profileLink.addEventListener('click', () => {
+                    if (currentUser) {
+                        const profileLink = currentUser.username 
+                            ? `https://t.me/Plugg_So2_bot?startapp=${currentUser.username}` 
+                            : 'https://t.me/Plugg_So2_bot?startapp=none';
+                        
+                        navigator.clipboard.writeText(profileLink).then(() => {
+                            profileLinkDisplay.classList.add('badge-profile-copied');
+                            tg.showAlert('Ссылка скопирована в буфер обмена!');
+                            setTimeout(() => {
+                                profileLinkDisplay.classList.remove('badge-profile-copied');
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Ошибка при копировании: ', err);
+                        });
+                    }
                 });
             }
             
-            // Проверка уникальности username
-            function isUsernameUnique(username) {
-                const users = JSON.parse(localStorage.getItem('plugg_users') || '[]');
-                return !users.some(user => user.username.toLowerCase() === username.toLowerCase());
+            // Обработчик кнопки "Применить" для значков
+            if (badgeApplyBtn) {
+                badgeApplyBtn.addEventListener('click', () => {
+                    if (!selectedBadge || !currentUser) return;
+                    
+                    // Проверяем, активен ли уже этот значок
+                    const isAlreadyActive = currentUser.badges && currentUser.badges.some(b => b.id === selectedBadge.id && b.active);
+                    
+                    if (isAlreadyActive) {
+                        // Снимаем активность
+                        currentUser.badges = currentUser.badges.filter(b => b.id !== selectedBadge.id || !b.active);
+                        badgeApplyBtn.textContent = 'Применить';
+                    } else {
+                        // Удаляем текущий активный значок
+                        if (currentUser.badges) {
+                            currentUser.badges = currentUser.badges.filter(b => !b.active);
+                        } else {
+                            currentUser.badges = [];
+                        }
+                        
+                        // Добавляем новый активный значок
+                        currentUser.badges.push({
+                            id: selectedBadge.id,
+                            active: true
+                        });
+                        
+                        badgeApplyBtn.textContent = 'Снять';
+                    }
+                    
+                    // Сохраняем изменения
+                    localStorage.setItem('plugg_user', JSON.stringify(currentUser));
+                    updateProfileUI();
+                });
             }
             
-            // Проверка входа через startapp
-            function checkStartappAuth() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const startapp = urlParams.get('startapp');
-                
-                if (startapp && startapp.startsWith('accounton_')) {
-                    // Извлекаем юзернейм из startapp кода
-                    const username = startapp.replace('accounton_', '');
+            // Обработчик кнопки "Закрепить" для значков
+            if (badgePinBtn) {
+                badgePinBtn.addEventListener('click', () => {
+                    if (!selectedBadge || !currentUser) return;
                     
-                    // Получаем список пользователей
-                    const users = JSON.parse(localStorage.getItem('plugg_users') || '[]');
+                    // Проверяем, закреплен ли уже этот значок
+                    const isPinned = currentUser.pinned_badges && currentUser.pinned_badges.includes(selectedBadge.id);
                     
-                    // Ищем пользователя по юзернейму
-                    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-                    
-                    if (user) {
-                        // Проверяем, соответствует ли текущий Telegram ID пользователю
-                        if (user.telegram_id == tg.initDataUnsafe?.user?.id) {
-                            // Авторизуем пользователя
-                            localStorage.setItem('plugg_user', JSON.stringify(user));
-                            currentUser = user;
-                            updateProfileUI();
-                            
-                            // Убираем параметр startapp из URL
-                            const newUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
-                            window.history.pushState({}, '', newUrl);
-                            
-                            tg.showAlert('Вы успешно вошли в аккаунт!');
-                        } else {
-                            tg.showAlert('Ошибка авторизации. Этот аккаунт привязан к другому Telegram-аккаунту.');
-                        }
+                    if (isPinned) {
+                        // Открепляем значок
+                        currentUser.pinned_badges = currentUser.pinned_badges.filter(id => id !== selectedBadge.id);
+                        badgePinBtn.textContent = 'Закрепить';
+                        badgePinBtn.classList.remove('pinned');
                     } else {
-                        tg.showAlert('Неверный или просроченный код авторизации.');
+                        // Проверяем, не превышен ли лимит закрепленных значков
+                        if (!currentUser.pinned_badges) {
+                            currentUser.pinned_badges = [];
+                        }
+                        
+                        if (currentUser.pinned_badges.length < 6) {
+                            // Закрепляем значок
+                            currentUser.pinned_badges.push(selectedBadge.id);
+                            badgePinBtn.textContent = 'Открепить';
+                            badgePinBtn.classList.add('pinned');
+                        } else {
+                            tg.showAlert('Вы достигли лимита закрепленных значков (6 шт.)');
+                            return;
+                        }
                     }
+                    
+                    // Сохраняем изменения
+                    localStorage.setItem('plugg_user', JSON.stringify(currentUser));
+                    updateProfileUI();
+                    
+                    // Обновляем отображение значков
+                    initBadges();
+                });
+            }
+            
+            // Обработчик редактирования баннера
+            if (bannerEdit) {
+                bannerEdit.addEventListener('click', () => {
+                    // Показываем селектор баннеров
+                    bannerSelector.classList.add('active');
+                    
+                    // Загружаем галерею
+                    loadGallery();
+                });
+            }
+            
+            // Обработчик закрытия селектора баннеров
+            if (bannerSelectorClose) {
+                bannerSelectorClose.addEventListener('click', () => {
+                    bannerSelector.classList.remove('active');
+                    bannerPreview.classList.remove('active');
+                    selectedBannerFile = null;
+                });
+            }
+            
+            // Обработчик выбора из галереи
+            if (bannerUpload) {
+                bannerUpload.addEventListener('click', () => {
+                    // Создаем скрытый input для выбора файла
+                    const fileInput = document.createElement('input');
+                    fileInput.type = 'file';
+                    fileInput.accept = 'image/*';
+                    fileInput.capture = 'user'; // Запрашиваем доступ к камере
+                    
+                    fileInput.addEventListener('change', (e) => {
+                        if (e.target.files && e.target.files[0]) {
+                            selectedBannerFile = e.target.files[0];
+                            const reader = new FileReader();
+                            
+                            reader.onload = function(event) {
+                                bannerPreviewImg.src = event.target.result;
+                                bannerPreview.classList.add('active');
+                            };
+                            
+                            reader.readAsDataURL(selectedBannerFile);
+                        }
+                    });
+                    
+                    fileInput.click();
+                });
+            }
+            
+            // Загрузка галереи
+            function loadGallery() {
+                // Здесь можно загрузить изображения из галереи устройства
+                // Для примера добавим несколько заглушек
+                bannerGallery.innerHTML = '';
+                
+                for (let i = 1; i <= 9; i++) {
+                    const bannerItem = document.createElement('div');
+                    bannerItem.className = 'banner-item';
+                    bannerItem.innerHTML = `
+                        <img src="https://picsum.photos/600/300?random=${i}" alt="Banner ${i}">
+                    `;
+                    
+                    bannerItem.addEventListener('click', () => {
+                        // Снимаем выделение со всех элементов
+                        document.querySelectorAll('.banner-item').forEach(item => {
+                            item.classList.remove('selected');
+                        });
+                        
+                        // Выделяем текущий элемент
+                        bannerItem.classList.add('selected');
+                        
+                        // Устанавливаем изображение в превью
+                        bannerPreviewImg.src = bannerItem.querySelector('img').src;
+                        bannerPreview.classList.add('active');
+                        selectedBannerFile = null;
+                    });
+                    
+                    bannerGallery.appendChild(bannerItem);
                 }
             }
             
+            // Обработчик отмены выбора баннера
+            if (bannerCancelBtn) {
+                bannerCancelBtn.addEventListener('click', () => {
+                    bannerPreview.classList.remove('active');
+                    selectedBannerFile = null;
+                });
+            }
+            
+            // Обработчик применения баннера
+            if (bannerApplyBtn) {
+                bannerApplyBtn.addEventListener('click', () => {
+                    if (currentUser) {
+                        if (selectedBannerFile) {
+                            // Если выбран файл из галереи
+                            const reader = new FileReader();
+                            
+                            reader.onload = function(event) {
+                                currentUser.banner = event.target.result;
+                                localStorage.setItem('plugg_user', JSON.stringify(currentUser));
+                                bannerSelector.classList.remove('active');
+                                bannerPreview.classList.remove('active');
+                                selectedBannerFile = null;
+                                updateProfileUI();
+                            };
+                            
+                            reader.readAsDataURL(selectedBannerFile);
+                        } else if (bannerPreviewImg.src) {
+                            // Если выбрано изображение из галереи
+                            currentUser.banner = bannerPreviewImg.src;
+                            localStorage.setItem('plugg_user', JSON.stringify(currentUser));
+                            bannerSelector.classList.remove('active');
+                            bannerPreview.classList.remove('active');
+                            updateProfileUI();
+                        }
+                    }
+                });
+            }
+            
             // Инициализация при загрузке
-            checkStartappAuth();
             checkUser();
             renderGames('all');
+            
+            // Восстановление библиотеки после выхода
+            const tempUser = localStorage.getItem('plugg_temp_user');
+            if (tempUser && !currentUser) {
+                try {
+                    const tempData = JSON.parse(tempUser);
+                    if (tempData.library && tempData.library.length > 0) {
+                        // Если пользователь снова входит, восстанавливаем библиотеку
+                        if (checkUser()) {
+                            currentUser.library = [...new Set([...currentUser.library, ...tempData.library])];
+                            localStorage.setItem('plugg_user', JSON.stringify(currentUser));
+                            updateLibraryUI();
+                        }
+                    }
+                    localStorage.removeItem('plugg_temp_user');
+                } catch (e) {
+                    console.error('Error restoring library', e);
+                    localStorage.removeItem('plugg_temp_user');
+                }
+            }
             
             // Установка safe area insets
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.safeAreaInset) {
@@ -2135,20 +2957,6 @@
                 document.documentElement.style.setProperty('--tg-safe-area-inset-bottom', `${window.Telegram.WebApp.safeAreaInset.bottom}px`);
                 document.documentElement.style.setProperty('--tg-safe-area-inset-left', `${window.Telegram.WebApp.safeAreaInset.left}px`);
                 document.documentElement.style.setProperty('--tg-safe-area-inset-right', `${window.Telegram.WebApp.safeAreaInset.right}px`);
-            }
-            
-            // Обработка startapp параметра
-            const urlParams = new URLSearchParams(window.location.search);
-            const startapp = urlParams.get('startapp');
-            if (startapp) {
-                // Проверяем, не был ли код использован недавно
-                let recentCodes = JSON.parse(localStorage.getItem('plugg_recent_startapp_codes') || '[]');
-                recentCodes = recentCodes.filter(code => Date.now() - code.timestamp < 5000); // Очищаем старые записи (старше 5 секунд)
-                recentCodes.push({
-                    code: startapp,
-                    timestamp: Date.now()
-                });
-                localStorage.setItem('plugg_recent_startapp_codes', JSON.stringify(recentCodes));
             }
             
             // Добавляем обработчик для закрытия модальных окон при нажатии Esc
@@ -2159,6 +2967,11 @@
                     }
                     if (profileModal && profileModal.classList.contains('active')) {
                         profileModal.classList.remove('active');
+                    }
+                    if (bannerSelector && bannerSelector.classList.contains('active')) {
+                        bannerSelector.classList.remove('active');
+                        bannerPreview.classList.remove('active');
+                        selectedBannerFile = null;
                     }
                 }
             });
